@@ -17,8 +17,8 @@ public class FirebaseFdprojectApplication {
 		SpringApplication.run(FirebaseFdprojectApplication.class, args);
 	}
 	@RequestMapping("/home")
-	public void home() {
-		System.out.println("Helllo");
+	public String home() {
+		return "Hello World";
 	}
 
 }
