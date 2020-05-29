@@ -18,7 +18,7 @@ public class FirebaseFdprojectApplication {
 		SpringApplication.run(FirebaseFdprojectApplication.class, args);
 	}
 	
-	@GetMapping(path = "/")
+	@GetMapping("/")
 	public String home() {
 		return "Raj snab";
 	}
