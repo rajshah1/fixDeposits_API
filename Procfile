@@ -1,1 +1,1 @@
-web: java -jar target/bank-deposit-managment-1.0.0.jar
+web: java -jar target/firebase-fdproject-0.0.1-SNAPSHOT.jar
