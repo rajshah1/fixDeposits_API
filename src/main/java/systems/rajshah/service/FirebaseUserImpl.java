@@ -19,7 +19,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	Firestore dbFirestore = FirestoreClient.getFirestore();
 
 	@Override
-	public UserInfo getCurrentUserDetails(String emailID,String idToken) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	public UserInfo getCurrentUserDetails(String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
 		
 		UserRecord a=FirebaseAuth.getInstance().getUserByEmail(emailID);

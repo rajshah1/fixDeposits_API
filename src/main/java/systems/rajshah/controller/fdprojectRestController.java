@@ -24,8 +24,8 @@ public class fdprojectRestController {
 		return "Hello";
 	}
 	@GetMapping(value="/user/{emailID}",produces="application/json")
-	public UserInfo getuserInfoByemail(@PathVariable("emailID") String emailID,@RequestBody String idToken) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	public UserInfo getuserInfoByemail(@PathVariable("emailID") String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		
-		return ifirebaseuser.getCurrentUserDetails(emailID,idToken);
+		return ifirebaseuser.getCurrentUserDetails(emailID);
 	}
 }
