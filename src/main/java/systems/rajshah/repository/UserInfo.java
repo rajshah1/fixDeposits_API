@@ -5,50 +5,48 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserInfo {
 	
-	public String Address;
-	public Double MobileNo;
-	public String Name;
+	public String address;
+	public Double mobileNo;
+	public String name;
 	public String email;
 	public String role;
-	public String UID;
+	public String uid;
 	
 	
-	
+	public UserInfo(){
+		
+	}
 	@Override
 	public String toString() {
-		return "UserInfo [Address=" + Address + ", MobileNo=" + MobileNo + ", Name=" + Name + ", email=" + email
-				+ ", role=" + role + ", UID=" + UID + "]";
+		return "UserInfo [address=" + address + ", mobileNo=" + mobileNo + ", name=" + name + ", email=" + email
+				+ ", role=" + role + ", uid=" + uid + "]";
 	}
-	
-	
-	public UserInfo(String address, Double mobileNo, String name, String email, String role, String uID) {
+	public UserInfo(String address, Double mobileNo, String name, String email, String role, String uid) {
 		super();
-		Address = address;
-		MobileNo = mobileNo;
-		Name = name;
+		this.address = address;
+		this.mobileNo = mobileNo;
+		this.name = name;
 		this.email = email;
 		this.role = role;
-		UID = uID;
+		this.uid = uid;
 	}
-
-
 	public String getAddress() {
-		return Address;
+		return address;
 	}
 	public void setAddress(String address) {
-		Address = address;
+		this.address = address;
 	}
 	public Double getMobileNo() {
-		return MobileNo;
+		return mobileNo;
 	}
 	public void setMobileNo(Double mobileNo) {
-		MobileNo = mobileNo;
+		this.mobileNo = mobileNo;
 	}
 	public String getName() {
-		return Name;
+		return name;
 	}
 	public void setName(String name) {
-		Name = name;
+		this.name = name;
 	}
 	public String getEmail() {
 		return email;
@@ -62,12 +60,13 @@ public class UserInfo {
 	public void setRole(String role) {
 		this.role = role;
 	}
-	public String getUID() {
-		return UID;
+	public String getUid() {
+		return uid;
 	}
-	public void setUID(String uID) {
-		UID = uID;
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
 	
+		
 	
 }

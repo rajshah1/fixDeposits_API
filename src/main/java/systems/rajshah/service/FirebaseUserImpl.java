@@ -30,6 +30,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		UserInfo userInfo;
 		if(docsnap.exists()) {
 			userInfo=docsnap.toObject(UserInfo.class);
+			System.out.println(userInfo.toString());
 			return userInfo;
 		}
 		return null;
