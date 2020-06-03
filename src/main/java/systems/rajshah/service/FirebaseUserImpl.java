@@ -24,7 +24,7 @@ import systems.rajshah.repository.UserInfo;
 @Service
 public class FirebaseUserImpl implements IfirebaseUser{
 	Firestore dbFirestore = FirestoreClient.getFirestore();
-	public String CurrentLoggedInUserUID="";
+	 String CurrentLoggedInUserUID="";
 	
 	@Override
 	public UserInfo getCurrentUserDetails(String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
