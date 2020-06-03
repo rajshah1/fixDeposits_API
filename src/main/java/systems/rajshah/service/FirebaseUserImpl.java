@@ -51,12 +51,18 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
 		
-		Map<String, Object> data = new HashMap<>();
-		data.put("name", "Tokyo");
-		data.put("country", "Japan");
+		Map<String, Object> docData = new HashMap<>();
+		docData.put("name", "Los Angeles");
+		docData.put("state", "CA");
+		docData.put("country", "USA");
 		
-		ApiFuture<WriteResult> future = dbFirestore.collection("cities").document("alphaCounter").set(data);
-		System.out.println("Added document with ID: " + future.get().getUpdateTime());
+		// Add a new document (asynchronously) in collection "cities" with id "LA"
+		ApiFuture<WriteResult> future = dbFirestore.collection("cities").document("LA").set(docData);
+		// ...
+		// future.get() blocks on response
+		System.out.println("Update time : " + future.get().getUpdateTime());
+		
+		
 		/*
 		 * if(CurrentLoggedInUserUID!= null) { Map<String,Integer> docData = new
 		 * HashMap<>(); for(int i=0;i<26;i++) { docData.put
