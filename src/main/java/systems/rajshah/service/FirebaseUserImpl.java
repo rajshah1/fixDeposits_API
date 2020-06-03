@@ -56,7 +56,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		System.out.println(docData);
 		System.out.println("this the UID: "+CurrentLoggedInUserUID);
 		//dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter").set(docData);
-		//System.out.println("I have seen this"+future.get().getUpdateTime());
+		//System.out.println("I have seen this"+future.get().getUpdateTime()); 
 		return null;
 		
 	}
