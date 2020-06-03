@@ -1,5 +1,9 @@
 package systems.rajshah.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
@@ -9,32 +13,55 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
 
+import systems.rajshah.repository.InvestorInfo;
 import systems.rajshah.repository.UserInfo;
 
 @Service
 public class FirebaseUserImpl implements IfirebaseUser{
 	Firestore dbFirestore = FirestoreClient.getFirestore();
-
+	private String CurrentLoggedInUserUID="";
+	
 	@Override
 	public UserInfo getCurrentUserDetails(String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
 		
 		UserRecord a=FirebaseAuth.getInstance().getUserByEmail(emailID);
+		CurrentLoggedInUserUID=a.getUid();
+		System.out.println("this is UID:"+CurrentLoggedInUserUID);
 		
-		System.out.println("this is UID:"+a.getUid());
 		ApiFuture<DocumentSnapshot> future=dbFirestore.collection("users").document(a.getEmail()).get();
 		DocumentSnapshot docsnap=future.get();
 		UserInfo userInfo;
 		if(docsnap.exists()) {
 			userInfo=docsnap.toObject(UserInfo.class);
-			System.out.println(userInfo.toString());
 			return userInfo;
 		}
 		return null;
 		
+	}
+
+	@Override
+	public InvestorInfo postInvestorInfo(InvestorInfo investInfo)
+			throws FirebaseAuthException, InterruptedException, ExecutionException {
+		// TODO Auto-generated method stub
+		Map<Character,Integer> docData = new HashMap<>();
+		for(int i=0;i<26;i++) {
+			docData.put((char)((i+97)),0);
+		}
+		dbFirestore.collection(CurrentLoggedInUserUID).document("AlphaCounter").set(docData);
+		return null;
+	}
+
+	@Override
+	public String getUID(String idToken) throws FirebaseAuthException {
+		// TODO Auto-generated method stub
+		FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+		return decodedToken.getUid();
+		 
 	}
 	
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class UserInfo {
 	
 	public String address;
-	public Double mobileNo;
+	public String mobileNo;
 	public String name;
 	public String email;
 	public String role;
@@ -21,7 +21,7 @@ public class UserInfo {
 		return "UserInfo [address=" + address + ", mobileNo=" + mobileNo + ", name=" + name + ", email=" + email
 				+ ", role=" + role + ", uid=" + uid + "]";
 	}
-	public UserInfo(String address, Double mobileNo, String name, String email, String role, String uid) {
+	public UserInfo(String address, String mobileNo, String name, String email, String role, String uid) {
 		super();
 		this.address = address;
 		this.mobileNo = mobileNo;
@@ -36,10 +36,10 @@ public class UserInfo {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	public Double getMobileNo() {
+	public String getMobileNo() {
 		return mobileNo;
 	}
-	public void setMobileNo(Double mobileNo) {
+	public void setMobileNo(String mobileNo) {
 		this.mobileNo = mobileNo;
 	}
 	public String getName() {
