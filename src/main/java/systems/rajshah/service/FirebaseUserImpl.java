@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
@@ -49,16 +50,22 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	public InvestorInfo postInvestorInfo(InvestorInfo investInfo)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
-		if(CurrentLoggedInUserUID!= null) {
-		Map<String,Integer> docData = new HashMap<>();
-		for(int i=0;i<26;i++) {
-			docData.put	(String.valueOf((char)(i+97)),0);
-		}
-		System.out.println(docData);
-		System.out.println("this the UID: "+CurrentLoggedInUserUID);
-		ApiFuture<WriteResult> future=dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter").set(docData);
-		System.out.println("I have seen this"+future.get().getUpdateTime()); 
-		}return null;
+		
+		Map<String, Object> data = new HashMap<>();
+		data.put("name", "Tokyo");
+		data.put("country", "Japan");
+		ApiFuture<DocumentReference> addedDocRef = dbFirestore.collection("cities").add(data);
+		System.out.println("Added document with ID: " + addedDocRef.get().getId());
+		/*
+		 * if(CurrentLoggedInUserUID!= null) { Map<String,Integer> docData = new
+		 * HashMap<>(); for(int i=0;i<26;i++) { docData.put
+		 * (String.valueOf((char)(i+97)),0); } System.out.println(docData);
+		 * System.out.println("this the UID: "+CurrentLoggedInUserUID);
+		 * ApiFuture<WriteResult>
+		 * future=dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter"
+		 * ).set(docData);
+		 * System.out.println("I have seen this"+future.get().getUpdateTime()); }
+		 */return null;
 		
 	}
 
