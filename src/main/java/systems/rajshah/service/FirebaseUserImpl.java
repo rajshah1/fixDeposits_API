@@ -1,8 +1,8 @@
 package systems.rajshah.service;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -24,7 +24,7 @@ import systems.rajshah.repository.UserInfo;
 @Service
 public class FirebaseUserImpl implements IfirebaseUser{
 	Firestore dbFirestore = FirestoreClient.getFirestore();
-	private String CurrentLoggedInUserUID="";
+	public String CurrentLoggedInUserUID="";
 	
 	@Override
 	public UserInfo getCurrentUserDetails(String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
