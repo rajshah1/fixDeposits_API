@@ -51,10 +51,12 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		// TODO Auto-generated method stub
 		Map<Character,Integer> docData = new HashMap<>();
 		for(int i=0;i<26;i++) {
-			docData.put((char)((i+97)),0);
+			docData.put	((char)(i+97),0);
 		}
-		ApiFuture<WriteResult> future=dbFirestore.collection(CurrentLoggedInUserUID).document("AlphaCounter").set(docData);
-		System.out.println("I have seen this"+future.get().getUpdateTime());
+		System.out.println(docData);
+		System.out.println("this the UID: "+CurrentLoggedInUserUID);
+		//ApiFuture<WriteResult> future=dbFirestore.collection(CurrentLoggedInUserUID).document("AlphaCounter").set(docData);
+		//System.out.println("I have seen this"+future.get().getUpdateTime());
 		return null;
 	}
 
