@@ -57,10 +57,10 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		docData.put("country", "USA");
 		
 		// Add a new document (asynchronously) in collection "cities" with id "LA"
-		//ApiFuture<WriteResult> future = dbFirestore.collection("cities").document("LA").set(docData);
+		ApiFuture<WriteResult> future = dbFirestore.collection("cities").document("LA").set(docData);
 		//System.out.println("Update time : " + future.get().getUpdateTime());
-		ApiFuture<DocumentReference> addedDocRef = dbFirestore.collection("cities").add(docData);
-		System.out.println("Added document with ID: " + addedDocRef.get().getId());
+		//ApiFuture<DocumentReference> addedDocRef = dbFirestore.collection("cities").add(docData);
+		//System.out.println("Added document with ID: " + addedDocRef.get().getId());
 
 		
 		/*
