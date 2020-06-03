@@ -49,15 +49,16 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	public InvestorInfo postInvestorInfo(InvestorInfo investInfo)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
+		if(CurrentLoggedInUserUID!= null) {
 		Map<String,Integer> docData = new HashMap<>();
 		for(int i=0;i<26;i++) {
 			docData.put	(String.valueOf((char)(i+97)),0);
 		}
 		System.out.println(docData);
 		System.out.println("this the UID: "+CurrentLoggedInUserUID);
-		//dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter").set(docData);
-		//System.out.println("I have seen this"+future.get().getUpdateTime()); 
-		return null;
+		ApiFuture<WriteResult> future=dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter").set(docData);
+		System.out.println("I have seen this"+future.get().getUpdateTime()); 
+		}return null;
 		
 	}
 
