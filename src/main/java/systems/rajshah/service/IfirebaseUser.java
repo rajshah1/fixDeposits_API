@@ -10,5 +10,5 @@ import systems.rajshah.repository.UserInfo;
 public interface IfirebaseUser {
 public UserInfo getCurrentUserDetails(String emailId) throws FirebaseAuthException, InterruptedException, ExecutionException;
 public InvestorInfo postInvestorInfo(InvestorInfo investInfo) throws FirebaseAuthException, InterruptedException, ExecutionException;
-public String getUID(String IdToken) throws FirebaseAuthException;
+
 }

@@ -36,8 +36,5 @@ public class fdprojectRestController {
 		return ifirebaseuser.postInvestorInfo(investorInfo);
 		
 	}
-	@GetMapping(value="/idToken")
-	public String verifyToken(@RequestBody String IdToken) throws FirebaseAuthException {
-		return ifirebaseuser.getUID(IdToken);
-	}
+	
 }

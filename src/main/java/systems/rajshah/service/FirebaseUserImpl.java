@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -52,16 +53,10 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		for(int i=0;i<26;i++) {
 			docData.put((char)((i+97)),0);
 		}
-		dbFirestore.collection(CurrentLoggedInUserUID).document("AlphaCounter").set(docData);
+		ApiFuture<WriteResult> future=dbFirestore.collection(CurrentLoggedInUserUID).document("AlphaCounter").set(docData);
+		System.out.println("I have seen this"+future.get().getUpdateTime());
 		return null;
 	}
 
-	@Override
-	public String getUID(String idToken) throws FirebaseAuthException {
-		// TODO Auto-generated method stub
-		FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-		return decodedToken.getUid();
-		 
-	}
 	
 }
