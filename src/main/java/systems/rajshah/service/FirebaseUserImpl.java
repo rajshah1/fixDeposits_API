@@ -54,8 +54,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		Map<String, Object> data = new HashMap<>();
 		data.put("name", "Tokyo");
 		data.put("country", "Japan");
-		ApiFuture<DocumentReference> addedDocRef = dbFirestore.collection("cities").add(data);
-		System.out.println("Added document with ID: " + addedDocRef.get().getId());
+		
+		ApiFuture<WriteResult> future = dbFirestore.collection("cities").document("alphaCounter").set(data);
+		System.out.println("Added document with ID: " + future.get().getUpdateTime());
 		/*
 		 * if(CurrentLoggedInUserUID!= null) { Map<String,Integer> docData = new
 		 * HashMap<>(); for(int i=0;i<26;i++) { docData.put
