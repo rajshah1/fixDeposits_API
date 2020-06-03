@@ -49,9 +49,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	public InvestorInfo postInvestorInfo(InvestorInfo investInfo)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
-		Map<Character,Integer> docData = new HashMap<>();
+		Map<String,Integer> docData = new HashMap<>();
 		for(int i=0;i<26;i++) {
-			docData.put	((char)(i+97),0);
+			docData.put	(String.valueOf((char)(i+97)),0);
 		}
 		System.out.println(docData);
 		System.out.println("this the UID: "+CurrentLoggedInUserUID);
