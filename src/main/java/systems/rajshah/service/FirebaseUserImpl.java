@@ -58,6 +58,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		ApiFuture<WriteResult> future=dbFirestore.collection(CurrentLoggedInUserUID).document("AlphaCounter").set(docData);
 		System.out.println("I have seen this"+future.get().getUpdateTime());
 		return null;
+		
 	}
 
 	
