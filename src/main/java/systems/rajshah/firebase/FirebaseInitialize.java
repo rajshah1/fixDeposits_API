@@ -21,6 +21,7 @@ public class FirebaseInitialize {
 					.build();
 			if(FirebaseApp.getApps().isEmpty()) {
 			FirebaseApp firebaseApp = FirebaseApp.initializeApp(options);
+			System.out.println(FirebaseApp.DEFAULT_APP_NAME);
 		    FirebaseAuth.getInstance(firebaseApp);
 			}
 					
