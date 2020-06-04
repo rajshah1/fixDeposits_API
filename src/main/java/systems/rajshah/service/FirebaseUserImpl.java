@@ -59,7 +59,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
 		
 		DocumentReference docref=dbFirestore.collection(CurrentLoggedInUserUID).document("hello");
-		ApiFuture<WriteResult> future=docref.set(docData);
+		ApiFuture<WriteResult> future=docref.update(docData);
 		System.out.println(future.get().getUpdateTime());
 		return null;
 		
