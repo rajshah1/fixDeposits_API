@@ -50,7 +50,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	@Override
 	public InvestorInfo postInvestorInfo(InvestorInfo investInfo)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-	return null;
+		// TODO Auto-generated method stub
+		
+		return null;
 		
 	}
 
