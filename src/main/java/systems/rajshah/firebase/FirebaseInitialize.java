@@ -19,7 +19,10 @@ public class FirebaseInitialize {
 					.setCredentials(GoogleCredentials.getApplicationDefault())
 					.setDatabaseUrl("https://infy-rest-data.firebaseio.com/")
 					.build();
-					FirebaseApp.initializeApp(options);
+			if(FirebaseApp.getApps().isEmpty()) {
+			FirebaseApp firebaseApp = FirebaseApp.initializeApp(options);
+		    FirebaseAuth.getInstance(firebaseApp);
+			}
 					
 		}
 		catch(Exception e) {

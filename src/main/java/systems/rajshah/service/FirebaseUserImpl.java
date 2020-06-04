@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
@@ -55,6 +56,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		docData.put("name", "Los Angeles");
 		docData.put("state", "CA");
 		docData.put("country", "USA");
+		
 		
 		// Add a new document (asynchronously) in collection "cities" with id "LA"
 		ApiFuture<WriteResult> future = dbFirestore.collection("cities").document("LA").set(docData);
