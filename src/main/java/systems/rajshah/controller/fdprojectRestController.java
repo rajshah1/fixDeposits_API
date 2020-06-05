@@ -31,9 +31,9 @@ public class fdprojectRestController {
 	}
 	
 	@PostMapping(value="/addInvestor",consumes = "application/json")
-	public InvestorInfo setInvestorInfo(@RequestBody InvestorInfo investorInfo) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	public String creaInvestorInfo(@RequestBody InvestorInfo investorInfo) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		
-		return ifirebaseuser.postInvestorInfo(investorInfo);
+		return ifirebaseuser.createInvestorInfo(investorInfo);
 		
 	}
 	

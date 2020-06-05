@@ -30,7 +30,50 @@ public class InvestorInfo {
 		this.address = address;
 		this.familyCode = familyCode;
 	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getMiddleName() {
+		return middleName;
+	}
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getFamilyHead() {
+		return familyHead;
+	}
+	public void setFamilyHead(String familyHead) {
+		this.familyHead = familyHead;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getFamilyCode() {
+		return familyCode;
+	}
+	public void setFamilyCode(String familyCode) {
+		this.familyCode = familyCode;
+	}
 
+	
 	
 	
 }
