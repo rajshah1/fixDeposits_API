@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.firebase.auth.FirebaseAuthException;
 
-import systems.rajshah.repository.InvestorInfo;
-import systems.rajshah.repository.UserInfo;
+import systems.rajshah.model.FdInfo;
+import systems.rajshah.model.FullInvestorInfo;
+import systems.rajshah.model.InvestorInfo;
+import systems.rajshah.model.UserInfo;
 import systems.rajshah.service.IfirebaseUser;
 
 @RestController
+
 public class fdprojectRestController {
 	@Autowired(required = false)
 	IfirebaseUser ifirebaseuser;
@@ -30,11 +33,21 @@ public class fdprojectRestController {
 		return ifirebaseuser.getCurrentUserDetails(emailID);
 	}
 	
-	@PostMapping(value="/addInvestor",consumes = "application/json")
-	public String creaInvestorInfo(@RequestBody InvestorInfo investorInfo) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	@PostMapping(value="/{currentUid}/addInvestor",consumes = "application/json")			
+	public String creaInvestorInfo(@RequestBody InvestorInfo investorInfo,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		
-		return ifirebaseuser.createInvestorInfo(investorInfo);
+		return ifirebaseuser.createInvestorInfo(investorInfo,currentUid);
 		
+	}
+	
+	@PostMapping(value="/{currentUid}/addfdinfo",consumes = "application/json")
+	public String addFdInfo(@RequestBody FdInfo fdInfo,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
+		return ifirebaseuser.createFdInfo(fdInfo,currentUid);
+	}
+	
+	@GetMapping(value="/{currentUid}/getCustomer/{id}",produces = "application/json")
+	public FullInvestorInfo getCustomerInfo(@PathVariable("id") String idvarable,@PathVariable("currentUid") String currentUid ) throws FirebaseAuthException, InterruptedException, ExecutionException {
+		return ifirebaseuser.getfullInfo(idvarable,currentUid);
 	}
 	
 }

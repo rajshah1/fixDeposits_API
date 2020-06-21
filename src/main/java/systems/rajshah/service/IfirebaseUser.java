@@ -4,11 +4,14 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.firebase.auth.FirebaseAuthException;
 
-import systems.rajshah.repository.InvestorInfo;
-import systems.rajshah.repository.UserInfo;
+import systems.rajshah.model.FdInfo;
+import systems.rajshah.model.FullInvestorInfo;
+import systems.rajshah.model.InvestorInfo;
+import systems.rajshah.model.UserInfo;
 
 public interface IfirebaseUser {
 public UserInfo getCurrentUserDetails(String emailId) throws FirebaseAuthException, InterruptedException, ExecutionException;
-public String createInvestorInfo(InvestorInfo investInfo) throws FirebaseAuthException, InterruptedException, ExecutionException;
-
+public String createInvestorInfo(InvestorInfo investInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
+public String createFdInfo(FdInfo fdInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
+public FullInvestorInfo getfullInfo(String Idvar,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
 }

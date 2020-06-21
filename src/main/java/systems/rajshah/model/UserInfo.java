@@ -1,4 +1,4 @@
-package systems.rajshah.repository;
+package systems.rajshah.model;
 
 import org.springframework.stereotype.Component;
 
