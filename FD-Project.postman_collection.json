@@ -1,0 +1,172 @@
+{
+	"info": {
+		"_postman_id": "4e0c6396-0924-414f-bf6b-03391ecbefe3",
+		"name": "FD-Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "getUsersDetailsByEmailId",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://bank-deposit-managment.herokuapp.com/users/shahraj121997@gmail.com",
+					"protocol": "https",
+					"host": [
+						"bank-deposit-managment",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"shahraj121997@gmail.com"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUsersDetailsByEmailId------LOCAL",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/users/rajshah121997@gmail.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"rajshah121997@gmail.com"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addInvestor----localhost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\":\"\",\n\t\"firstName\":\"raj\",\n\t\"middleName\":\"pranav\",\n\t\"lastName\":\"shah\",\n\t\"familyHead\":\"pranav\",\n\t\"address\":\"c/3,austmangal\",\n\t\"familyCode\":\"S001\"\n\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/tZJEMpeF85fRUJA6FhTYLqo7nzS2/addInvestor",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tZJEMpeF85fRUJA6FhTYLqo7nzS2",
+						"addInvestor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "heroku-addInvestor",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\":\"\",\n\t\"firstName\":\"raj\",\n\t\"middleName\":\"pranav\",\n\t\"lastName\":\"shah\",\n\t\"familyHead\":\"pranav\",\n\t\"address\":\"c/3,austmangal\",\n\t\"familyCode\":\"S001\"\n\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://bank-deposit-managment.herokuapp.com/tZJEMpeF85fRUJA6FhTYLqo7nzS2/addInvestor",
+					"protocol": "https",
+					"host": [
+						"bank-deposit-managment",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"tZJEMpeF85fRUJA6FhTYLqo7nzS2",
+						"addInvestor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FDInfo-----localhost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\":\"RS\",\n\t\"comapnyName\":\"LIC\",\n\t\"startDate\":\"Tue Jul 12 18:35:37 IST 2016\",\n\t\"period\":12,\n\t\"maturityDate\":\"Tue Jul 12 18:35:37 IST 2016\",\n\t\"firstName\":\"Raj\",\n\t\"secondName\":\"Pranav\",\n\t\"thirdName\":\"Heena\",\n\t\"nomineeName\":\"Utsav\",\n\t\"newOrRenew\":true,\n\t\"checkOrCash\":true,\n\t\"amount\":100000,\n\t\"scheme\":\"Ek ka double\",\n\t\"chequeNo\":\"10008854\",\n\t\"drawnOfBank\":\"SBI\",\n\t\"branch\":\"PALDI\",\n\t\"maturatyAmount\":180000,\n\t\"certificateNo\":\"CRSTN-28000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/tZJEMpeF85fRUJA6FhTYLqo7nzS2/addfdinfo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tZJEMpeF85fRUJA6FhTYLqo7nzS2",
+						"addfdinfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getFullCustomerInfo   ---local",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/tZJEMpeF85fRUJA6FhTYLqo7nzS2/getCustomer/RD1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tZJEMpeF85fRUJA6FhTYLqo7nzS2",
+						"getCustomer",
+						"RD1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
