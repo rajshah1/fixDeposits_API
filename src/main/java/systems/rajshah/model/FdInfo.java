@@ -24,6 +24,7 @@ public class FdInfo {
 	public String branch;
 	public int maturatyAmount;
 	public String certificateNo;
+	public String uid;
 	
 	public FdInfo() {
 		super();
@@ -39,15 +40,13 @@ public class FdInfo {
 				+ ", thirdName=" + thirdName + ", nomineeName=" + nomineeName + ", newOrRenew=" + newOrRenew
 				+ ", checkOrCash=" + checkOrCash + ", amount=" + amount + ", scheme=" + scheme + ", chequeNo="
 				+ chequeNo + ", drawnOfBank=" + drawnOfBank + ", branch=" + branch + ", maturatyAmount="
-				+ maturatyAmount + ", certificateNo=" + certificateNo + "]";
+				+ maturatyAmount + ", certificateNo=" + certificateNo + ", uid=" + uid + "]";
 	}
-
-	
 
 	public FdInfo(String id, String comapnyName, Date startDate, int period, Date maturityDate, String firstName,
 			String secondName, String thirdName, String nomineeName, Boolean newOrRenew, Boolean checkOrCash,
 			int amount, String scheme, String chequeNo, String drawnOfBank, String branch, int maturatyAmount,
-			String certificateNo) {
+			String certificateNo, String uid) {
 		super();
 		this.id = id;
 		this.comapnyName = comapnyName;
@@ -67,9 +66,22 @@ public class FdInfo {
 		this.branch = branch;
 		this.maturatyAmount = maturatyAmount;
 		this.certificateNo = certificateNo;
+		this.uid = uid;
 	}
 
-	
+
+
+	public String getUid() {
+		return uid;
+	}
+
+
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
+
 
 	public String getId() {
 		return id;

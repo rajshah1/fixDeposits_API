@@ -1,5 +1,6 @@
 package systems.rajshah.controller;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import systems.rajshah.model.FdInfo;
 import systems.rajshah.model.FullInvestorInfo;
 import systems.rajshah.model.InvestorInfo;
+import systems.rajshah.model.QueryObjectDetails;
 import systems.rajshah.model.UserInfo;
 import systems.rajshah.service.IfirebaseUser;
 
@@ -49,5 +51,16 @@ public class fdprojectRestController {
 	public FullInvestorInfo getCustomerInfo(@PathVariable("id") String idvarable,@PathVariable("currentUid") String currentUid ) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		return ifirebaseuser.getfullInfo(idvarable,currentUid);
 	}
+	
+	@GetMapping(value="/{currentUid}/getInfoStart",produces = "application/json")
+	public List<FullInvestorInfo> getAllBetweenRanges(@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
+		return ifirebaseuser.getFullInfoByStartDate(queryFullDetails, currentUid);
+	}
+
+	@GetMapping(value="/{currentUid}/getInfoStart",produces = "application/json")
+	public List<FullInvestorInfo> getAllByMaturatyDate(@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
+		return ifirebaseuser.getFullInfoByMaturityDate(queryFullDetails, currentUid);
+	}
+	
 	
 }
