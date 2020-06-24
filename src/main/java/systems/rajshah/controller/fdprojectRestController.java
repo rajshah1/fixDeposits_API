@@ -54,13 +54,10 @@ public class fdprojectRestController {
 	
 	@GetMapping(value="/{currentUid}/getInfoStart",produces = "application/json")
 	public List<FullInvestorInfo> getAllBetweenRanges(@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
-		return ifirebaseuser.getFullInfoByStartDate(queryFullDetails, currentUid);
+		return ifirebaseuser.getInvestInfoBtDates(queryFullDetails, currentUid);
 	}
 
-	@GetMapping(value="/{currentUid}/getInfoStart",produces = "application/json")
-	public List<FullInvestorInfo> getAllByMaturatyDate(@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
-		return ifirebaseuser.getFullInfoByMaturityDate(queryFullDetails, currentUid);
-	}
+	
 	
 	
 }
