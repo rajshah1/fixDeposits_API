@@ -62,7 +62,11 @@ public class fdprojectRestController {
 		return ifirebaseuser.getInvestInfoBtMaturityDates(queryFullDetails, currentUid);
 	}
 	
-
+	@GetMapping(value="/{currentUid}/getCustomersByFid/{id}",produces = "application/json")
+	public List<FullInvestorInfo> getInfoByFamilyCode(@PathVariable("id") String idvarable,@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
+		return ifirebaseuser.getfullInfoByFamilyCode(idvarable,queryFullDetails, currentUid);
+	}
+	
 	
 	
 	

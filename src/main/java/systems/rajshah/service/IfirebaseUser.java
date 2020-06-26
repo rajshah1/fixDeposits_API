@@ -18,5 +18,5 @@ public String createFdInfo(FdInfo fdInfo,String currentUid) throws FirebaseAuthE
 public FullInvestorInfo getfullInfo(String Idvar,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
 public List<FullInvestorInfo> getInvestInfoBtStartDates(QueryObjectDetails queyObject,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
 public List<FullInvestorInfo> getInvestInfoBtMaturityDates(QueryObjectDetails queyObject,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
-
+public List<FullInvestorInfo> getfullInfoByFamilyCode(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException; 
 }

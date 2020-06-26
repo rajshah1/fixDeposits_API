@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -133,13 +135,14 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	public List<FullInvestorInfo> getInvestInfoBtStartDates(QueryObjectDetails queryObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
+		String Tp=queryObject.getSearchField();
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		List<String> test=new ArrayList<String>();
 		List<FullInvestorInfo> listfull= new ArrayList<FullInvestorInfo>();
 		//System.out.println(queryObject.getSearchField());
 		CollectionReference collRef=dbFirestore.collection(currentUid);
-		Query startDateResults=dbFirestore.collectionGroup("fdInfo").whereGreaterThanOrEqualTo("startDate",queryObject.getInitialDate())
-		.whereLessThanOrEqualTo("startDate",queryObject.getLastDate()).whereEqualTo("uid", currentUid);
+		Query startDateResults=dbFirestore.collectionGroup("fdInfo").whereGreaterThanOrEqualTo(Tp,queryObject.getInitialDate())
+		.whereLessThanOrEqualTo(Tp,queryObject.getLastDate()).whereEqualTo("uid", currentUid);
 		
 		
 		for (DocumentSnapshot documentData : startDateResults.get().get().getDocuments()) {
@@ -180,34 +183,48 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	public List<FullInvestorInfo> getInvestInfoBtMaturityDates(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
-		
-		
+	
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		List<String> test=new ArrayList<String>();
 		List<FullInvestorInfo> listfull= new ArrayList<FullInvestorInfo>();
-		//System.out.println(queryObject.getSearchField());
 		CollectionReference collRef=dbFirestore.collection(currentUid);
-		Query startDateResults=dbFirestore.collectionGroup("fdInfo").whereGreaterThanOrEqualTo("maturityDate",queyObject.getInitialDate())
-		.whereLessThanOrEqualTo("maturityDate",queyObject.getLastDate()).whereEqualTo("uid", currentUid);
+		List<QueryDocumentSnapshot> startDateResults=dbFirestore.collectionGroup("fdInfo").whereGreaterThanOrEqualTo("maturityDate",queyObject.getInitialDate())
+		.whereLessThanOrEqualTo("maturityDate",queyObject.getLastDate()).whereEqualTo("uid", currentUid).get().get().getDocuments();
 		
-		
-		for (DocumentSnapshot documentData : startDateResults.get().get().getDocuments()) {
-				
-			FullInvestorInfo oneInstance=new FullInvestorInfo();
+		for (DocumentSnapshot documentData : startDateResults) {
+				FullInvestorInfo oneInstance=new FullInvestorInfo();	
 				List<FdInfo> fdInformation=new ArrayList<FdInfo>();
-			    //System.out.println(documentData.get("id"));
 				String currentFdId=documentData.getString("id");
-				//System.out.println(a);
+				
 				if(test.contains(currentFdId)) {
-					//Get last added fullCustomer and add current FdInfo
-					
-					oneInstance=listfull.get(listfull.size()-1);
-					fdInformation = oneInstance.getFdInfo();
-					fdInformation.add(documentData.toObject(FdInfo.class));
-					oneInstance.setFdInfo(fdInformation);
-					listfull.set(listfull.size()-1,oneInstance);
-					
-				//	System.out.println(listfull);
+					 System.out.println("Current FID In if  "+currentFdId);
+				//	 System.out.println("Current ListFull "+listfull);
+					 List<InvestorInfo> palo=listfull.stream().map(e->e.investor).collect(Collectors.toList());					 
+					 System.out.println("palo "+palo);
+					 
+					 for(InvestorInfo investInfo:palo) {
+						 if(investInfo.getId()==currentFdId) {
+							  int indexValue=palo.indexOf(investInfo);
+							  System.out.println(indexValue);
+							  oneInstance= listfull.get(indexValue);
+							  fdInformation = oneInstance.getFdInfo();
+							  fdInformation.add(documentData.toObject(FdInfo.class));
+							  oneInstance.setFdInfo(fdInformation);
+							  System.out.println("One Instance"+oneInstance);
+							  listfull.set(indexValue,oneInstance);
+								
+						 }
+					 }
+						/*
+						 * Set<InvestorInfo> ttttt=palo.stream().filter(e->e.getId() ==
+						 * currentFdId).collect(Collectors.toSet()); System.out.println("TTTTTT"+ttttt);
+						 */
+		//			oneInstance=listfull.get(listfull.size()-1);
+		//			fdInformation = oneInstance.getFdInfo();
+		//			fdInformation.add(documentData.toObject(FdInfo.class));
+		//			oneInstance.setFdInfo(fdInformation);
+		//			listfull.set(listfull.size()-1,oneInstance);
+			
 				//	System.out.println(test);
 				}
 				else {
@@ -216,15 +233,61 @@ public class FirebaseUserImpl implements IfirebaseUser{
 					 fdInformation.add(documentData.toObject(FdInfo.class));
 					 oneInstance.setFdInfo(fdInformation);
 					 listfull.add(oneInstance);
-			//		 System.out.println(listfull);
+
 					 test.add(currentFdId);
-			//		 System.out.println(test);
+					 System.out.println(test);
 				}
 		}
 		//System.out.println(listfull);
 		return listfull;
 	}
+
 	
- 
+	
+	@Override
+	public List<FullInvestorInfo> getfullInfoByFamilyCode(String Idvar,QueryObjectDetails queyObject, String currentUid)
+			throws FirebaseAuthException, InterruptedException, ExecutionException {
+		// TODO Auto-generated method stub
+		List<FullInvestorInfo> fullData = new ArrayList<FullInvestorInfo>();
+		String Tp=queyObject.getSearchField();
+		Firestore dbFirestore = FirestoreClient.getFirestore();
+		CollectionReference collRef=dbFirestore.collection(currentUid);
+		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",Idvar).get().get().getDocuments();
+	if(!documentInfo.isEmpty()) {	
+		for(DocumentSnapshot documentwithsameF:documentInfo) {
+		//	System.out.println(documentwithsameF);
+			 
+			List<QueryDocumentSnapshot> tet=collRef.document(documentwithsameF.getString("id")).collection("fdInfo")
+			.whereGreaterThanOrEqualTo(Tp,queyObject.getInitialDate()).whereLessThanOrEqualTo(Tp,queyObject.getLastDate()).get().get().getDocuments();
+			
+			//InvestorInfo investInfo=new InvestorInfo();
+			//FdInfo fdInformation=null;
+			
+			if(!tet.isEmpty()) {
+				List<FdInfo> t=new ArrayList<FdInfo>();
+				FullInvestorInfo te=new FullInvestorInfo();
+				InvestorInfo investInfo=documentwithsameF.toObject(InvestorInfo.class);
+				//System.out.println(investInfo);
+				for (DocumentSnapshot selectfdInfo:tet) {
+					FdInfo fdInformation=selectfdInfo.toObject(FdInfo.class);
+					t.add(fdInformation);
+				}
+				te.setInvestor(investInfo);
+				te.setFdInfo(t);
+				fullData.add(te);
+				//System.out.println(te);
+			}
+		
+		}
+	}
+	else {
+		return null;
+	}
+//	System.out.println(fullData);
+	return fullData;
+	
+}
+	
+	
 	
 }
