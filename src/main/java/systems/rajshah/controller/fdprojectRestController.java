@@ -63,6 +63,11 @@ public class fdprojectRestController {
 	}
 	
 	
+	@GetMapping(value="/{currentUid}/generateCustIntiByFid/{id}",produces="application/pdf")
+	public Object generateCustInByFid(@PathVariable("id") String idvarable,@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
+		return ifirebaseuser.generateCustomerIntimationReport(idvarable, queryFullDetails, currentUid);
+	}
+	
 	
 	
 }

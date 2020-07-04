@@ -1,15 +1,16 @@
 package systems.rajshah.service;
 
-
-
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
+
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,6 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
@@ -26,13 +26,25 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
-//import com.google.protobuf.Timestamp;
-
 import systems.rajshah.model.FdInfo;
 import systems.rajshah.model.FullInvestorInfo;
 import systems.rajshah.model.InvestorInfo;
 import systems.rajshah.model.QueryObjectDetails;
 import systems.rajshah.model.UserInfo;
+
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.DottedLineSeparator;
+
 
 @Service
 public class FirebaseUserImpl implements IfirebaseUser{
@@ -157,31 +169,21 @@ public class FirebaseUserImpl implements IfirebaseUser{
 						  List<InvestorInfo> resultListOfInvestors=listfull.stream()
 						  .map(e->e.investor).collect(Collectors.toList());
 						  			//System.out.println("palo "+resultListOfInvestors);
-						  
-						  Set<InvestorInfo> resultWhereIdCompareTrue=resultListOfInvestors.stream()
-					     .filter(e->e.getId().equals(currentFdId)==true).collect(Collectors.toSet());
-							
-							  resultWhereIdCompareTrue.forEach(obj->{ int
-							  indexValue=resultListOfInvestors.indexOf(obj); FullInvestorInfo oneInstance1=
-							  listfull.get(indexValue); List<FdInfo> fdInformation1 =
-							  oneInstance1.getFdInfo();
-							  fdInformation1.add(documentData.toObject(FdInfo.class));
-							  oneInstance1.setFdInfo(fdInformation1); //
-							  System.out.println("One Instance"+oneInstance);
-							  listfull.set(indexValue,oneInstance1);	  
-							  });
-							 				  
-						  
-							/*
-							 * for(InvestorInfo investInfoValue:resultWhereIdCompareTrue) { int
-							 * indexValue=resultListOfInvestors.indexOf(investInfoValue); oneInstance=
-							 * listfull.get(indexValue); fdInformation = oneInstance.getFdInfo();
-							 * fdInformation.add(documentData.toObject(FdInfo.class));
-							 * oneInstance.setFdInfo(fdInformation); //
-							 * System.out.println("One Instance"+oneInstance);
-							 * listfull.set(indexValue,oneInstance); }
-							 */
-							 
+						  if(!resultListOfInvestors.isEmpty()) {
+							  Set<InvestorInfo> resultWhereIdCompareTrue=resultListOfInvestors.stream()
+									     .filter(e->e.getId().equals(currentFdId)==true).collect(Collectors.toSet());
+							  
+											  resultWhereIdCompareTrue.forEach(obj->{ 
+											  int indexValue=resultListOfInvestors.indexOf(obj); 
+											  FullInvestorInfo oneInstance1=listfull.get(indexValue); 
+											  List<FdInfo> fdInformation1 =oneInstance1.getFdInfo();
+											  fdInformation1.add(documentData.toObject(FdInfo.class));
+											  oneInstance1.setFdInfo(fdInformation1); //
+								//			  System.out.println("One Instance"+oneInstance);
+											  listfull.set(indexValue,oneInstance1);	  
+									});
+				
+						  }	 
 				}
 				else {
 					 DocumentSnapshot docfuture=collRef.document(currentFdId).get().get();
@@ -191,7 +193,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 					 listfull.add(oneInstance);
 
 					 test.add(currentFdId);
-					 System.out.println(test);
+			//		 System.out.println(test);
 				}
 		}
 		//System.out.println(listfull);
@@ -225,14 +227,20 @@ public class FirebaseUserImpl implements IfirebaseUser{
 				FullInvestorInfo te=new FullInvestorInfo();
 				InvestorInfo investInfo=documentwithsameF.toObject(InvestorInfo.class);
 				//System.out.println(investInfo);
-				for (DocumentSnapshot selectfdInfo:tet) {
-					FdInfo fdInformation=selectfdInfo.toObject(FdInfo.class);
+				tet.stream().forEach(e->{
+					FdInfo fdInformation=e.toObject(FdInfo.class);
 					t.add(fdInformation);
-				}
+
+				});
+				
+				/*
+				 * for (DocumentSnapshot selectfdInfo:tet) { FdInfo
+				 * fdInformation=selectfdInfo.toObject(FdInfo.class); t.add(fdInformation); }
+				 */
 				te.setInvestor(investInfo);
 				te.setFdInfo(t);
 				fullData.add(te);
-				//System.out.println(te);
+
 			}
 		
 		}
@@ -240,10 +248,136 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	else {
 		return null;
 	}
-//	System.out.println(fullData);
 	return fullData;
 	
 }
+
+	@Override
+	public Object generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
+		// TODO Auto-generated method stub
+		Document doc=new Document();
+    	doc.setMargins(10,10,0,0);
+    	try {
+    		//		Font fs15=new Font(Font.FontFamily.TIMES_ROMAN,15);
+    				Font fs10=FontFactory.getFont(FontFactory.COURIER,10);
+    				PdfWriter.getInstance(doc, new FileOutputStream("./pdffiles/test.pdf"));
+    				doc.open();
+    				addMetadata(doc);
+    				myInfoHeader(doc,fs10);
+    				reciverInfoAddress(doc);
+    				generalInfoWidrowal(doc);
+    				tablegenerator(doc);
+    				doc.close();
+    		
+    			} catch (FileNotFoundException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (DocumentException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+
+		
+		
+		return null;
+		
+	}
+	
+	private static void addMetadata(Document doc){
+    	doc.addCreationDate();
+		doc.addCreator("Raj shah");
+		doc.addAuthor("Raj Shah");
+		doc.addLanguage("English");
+
+    }
+    private static void myInfoHeader(Document doc,Font f1) throws DocumentException{
+    	//Paragraph p1=new Paragraph("Client Investment Report",f1);
+    	//p1.setAlignment(Paragraph.ALIGN_CENTER);
+    	//addEmptyLine(p1, 1);
+    	//doc.add(p1);
+    	Chunk ch1=new Chunk(" Pranav K shah");
+    	Chunk ch2=new Chunk("\n 42,Shreeram cloth Market,Revdibazar,");
+    	Chunk ch3=new Chunk("\n Crosslane Ahmedabad- 380002");
+    	Chunk ch4=new Chunk("\n TEL :(O) 22110395 (M)9825039684");
+    	
+    	Phrase phrase = new Phrase();
+    	phrase.add(ch1);
+    	phrase.add(ch2);
+    	phrase.add(ch3);
+    	phrase.add(ch4);
+    	
+    	Paragraph p1=new Paragraph();
+    	p1.add(phrase);
+    	p1.setAlignment(Paragraph.ALIGN_CENTER);
+    	p1.setSpacingAfter(20);
+    	doc.add(p1);
+    	
+    }
+    private static void reciverInfoAddress(Document doc) throws DocumentException{
+    	Chunk ch5=new Chunk(" To,");
+    	Chunk ch6=new Chunk("\n P05: Rameshbhai m patel");
+    	Chunk add7=new Chunk("\n Arvind Colony,N/R,Commisioner off");
+    	Chunk add8=new Chunk("\n Shaibaug road,");
+    	Chunk add9=new Chunk("\n Ahmedabad-380004");
+    	
+    	Phrase phrase = new Phrase();
+    	phrase.add(ch5);
+    	phrase.add(ch6);
+    	phrase.add(add7);
+    	phrase.add(add8);
+    	phrase.add(add9);
+    	
+    	Paragraph p1=new Paragraph();
+    	p1.add(phrase);
+    	p1.setAlignment(Paragraph.ALIGN_LEFT);
+    	p1.setSpacingAfter(20F); 
+    	doc.add(p1); 	
+    }
+    private static void generalInfoWidrowal(Document doc) throws DocumentException {
+		// TODO Auto-generated method stub
+    	Chunk ch10=new Chunk("\n \n Dear Sir/Madam,");
+    	Chunk ch11=new Chunk("\n \t \t \t \t \t \t \t \t \t \t \t \t Following FDR are matured on below mentioned dates .So, Kindly Contact us.");
+    	Chunk ch12=new Chunk("\n \n \t \t \t \t \t \t \t \t \t \t \t \t MATURITY FOR THE PERIOD : ");
+    	Chunk ch13=new Chunk("\t \t	 01/02/1997 TO 03/02/1997");
+    	Phrase phrase = new Phrase();
+    	phrase.add(ch10);
+    	phrase.add(ch11);
+    	phrase.add(ch12);
+    	phrase.add(ch13);
+    	
+    	Paragraph p1=new Paragraph();
+    	p1.add(phrase);
+    	p1.setSpacingAfter(10F); 
+    	DottedLineSeparator line =new DottedLineSeparator();
+    	doc.add(p1);
+    	doc.add(line);
+	}
+    private static void tablegenerator(Document doc) throws DocumentException {
+		// TODO Auto-generated method stub
+    	PdfPTable table=new PdfPTable(6);
+    	table.setWidthPercentage(90);
+    	table.setSpacingBefore(5f);
+    	float[] columnWidths = {1f,3f,4f,3f,3f,4f};
+    	table.setWidths(columnWidths);
+
+    	Stream.of("SR"," MATU.DATE \n DEPO.DATE","INVESTOR NAME","COMPANY NAME"," DEPO. AMT \n MATU. AMT","CERTIFICTE NO.")
+    	.forEach(e->{
+    		PdfPCell headerCell=new PdfPCell();
+    		headerCell.setBorderWidth(1);
+    		headerCell.setVerticalAlignment(Element.ALIGN_CENTER);
+    		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+    		headerCell.setPadding(5f);
+    		headerCell.setUseBorderPadding(true);
+
+
+    		headerCell.setPhrase(new Phrase(e));
+    		table.addCell(headerCell);
+    		
+    	});
+		
+    	doc.add(table);
+	}
+
 	
 	
 	
