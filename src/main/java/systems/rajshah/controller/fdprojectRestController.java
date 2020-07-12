@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.firebase.auth.FirebaseAuthException;
+import com.itextpdf.text.DocumentException;
 
 import systems.rajshah.model.FdInfo;
 import systems.rajshah.model.FullInvestorInfo;
@@ -30,9 +31,9 @@ public class fdprojectRestController {
 		return "Hello";
 	}
 	
-	@GetMapping(value="/users/{emailID}",produces="application/json")
-	public UserInfo getUserInfoByemail(@PathVariable("emailID") String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		return ifirebaseuser.getCurrentUserDetails(emailID);
+	@GetMapping(value="/users/{currentUid}",produces="application/json")
+	public UserInfo getUserInfoByemail(@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
+		return ifirebaseuser.getCurrentUserDetails(currentUid);
 	}
 	
 	@PostMapping(value="/{currentUid}/addInvestor",consumes = "application/json")			
@@ -64,10 +65,14 @@ public class fdprojectRestController {
 	
 	
 	@GetMapping(value="/{currentUid}/generateCustIntiByFid/{id}",produces="application/pdf")
-	public Object generateCustInByFid(@PathVariable("id") String idvarable,@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
+	public Object generateCustInByFid(@PathVariable("id") String idvarable,@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException{
 		return ifirebaseuser.generateCustomerIntimationReport(idvarable, queryFullDetails, currentUid);
 	}
 	
+	@GetMapping(value="/{currentUid}/getFamilyHeadDetails/{id}",produces="application/json")
+	public InvestorInfo getFamilyHeadDetails(@PathVariable("id") String idvarable,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException{
+		return ifirebaseuser.getFamliyHeadForFamilyCode(idvarable,currentUid);
+	}
 	
 	
 }

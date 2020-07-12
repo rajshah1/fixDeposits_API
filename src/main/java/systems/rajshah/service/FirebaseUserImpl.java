@@ -2,6 +2,7 @@ package systems.rajshah.service;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -50,10 +52,10 @@ import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 public class FirebaseUserImpl implements IfirebaseUser{
 	
 	@Override
-	public UserInfo getCurrentUserDetails(String emailID) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	public UserInfo getCurrentUserDetails(String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		UserRecord a=FirebaseAuth.getInstance().getUserByEmail(emailID);
+		UserRecord uInfo=FirebaseAuth.getInstance().getUser(currentUid);
 		//System.out.println("this is UID:"+CurrentLoggedInUserUID);
 	
 		/*
@@ -71,7 +73,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			 */ 
 
 		
-		ApiFuture<DocumentSnapshot> future=dbFirestore.collection("users").document(a.getEmail()).get();
+		ApiFuture<DocumentSnapshot> future=dbFirestore.collection("users").document(uInfo.getEmail()).get();
 		DocumentSnapshot docsnap=future.get();
 		UserInfo userInfo;
 		if(docsnap.exists()) {
@@ -253,20 +255,30 @@ public class FirebaseUserImpl implements IfirebaseUser{
 }
 
 	@Override
-	public Object generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	public Object generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
 		// TODO Auto-generated method stub
+		//from currentID find User Details
+		UserInfo uInfo=this.getCurrentUserDetails(currentUid);
+		InvestorInfo familyheadaddressName=this.getFamliyHeadForFamilyCode(Idvar, currentUid);
 		Document doc=new Document();
     	doc.setMargins(10,10,0,0);
+    	PdfPTable table=new PdfPTable(6);
+    	table.setWidthPercentage(90);
+    	table.setSpacingBefore(5f);
+    	float[] columnWidths = {1f,3f,4f,3f,3f,4f};
+    	table.setWidths(columnWidths);
+    	List<FullInvestorInfo> genListForFamilyCode=this.getfullInfoByFamilyCode(Idvar, queyObject, currentUid);
     	try {
     		//		Font fs15=new Font(Font.FontFamily.TIMES_ROMAN,15);
     				Font fs10=FontFactory.getFont(FontFactory.COURIER,10);
-    				PdfWriter.getInstance(doc, new FileOutputStream("./pdffiles/test.pdf"));
+    				PdfWriter.getInstance(doc, new FileOutputStream("test.pdf"));
     				doc.open();
-    				addMetadata(doc);
-    				myInfoHeader(doc,fs10);
-    				reciverInfoAddress(doc);
-    				generalInfoWidrowal(doc);
-    				tablegenerator(doc);
+    				addMetadata(doc,uInfo.getName());
+    				myInfoHeader(doc,fs10,uInfo);
+    				reciverInfoAddress(doc,familyheadaddressName);
+    				generalInfoWidrowal(doc,queyObject);
+    				PdfPTable table1=tablegenerator(doc,table);
+    				addlistToPdf(doc,table1,genListForFamilyCode);
     				doc.close();
     		
     			} catch (FileNotFoundException e) {
@@ -283,49 +295,115 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		
 	}
 	
-	private static void addMetadata(Document doc){
+	private static void addMetadata(Document doc,String CurrentUserName){
     	doc.addCreationDate();
-		doc.addCreator("Raj shah");
-		doc.addAuthor("Raj Shah");
+		doc.addCreator(CurrentUserName);
+		doc.addAuthor("rajshah.systems");
 		doc.addLanguage("English");
 
     }
-    private static void myInfoHeader(Document doc,Font f1) throws DocumentException{
-    	//Paragraph p1=new Paragraph("Client Investment Report",f1);
-    	//p1.setAlignment(Paragraph.ALIGN_CENTER);
-    	//addEmptyLine(p1, 1);
-    	//doc.add(p1);
-    	Chunk ch1=new Chunk(" Pranav K shah");
-    	Chunk ch2=new Chunk("\n 42,Shreeram cloth Market,Revdibazar,");
-    	Chunk ch3=new Chunk("\n Crosslane Ahmedabad- 380002");
-    	Chunk ch4=new Chunk("\n TEL :(O) 22110395 (M)9825039684");
+    private static void myInfoHeader(Document doc,Font f1,UserInfo uInfoVal) throws DocumentException{
+    	String addressLine1="";
+    	String addressLine2="";
+    	String addressLine3="";
+    	String [] t=uInfoVal.getAddress().toUpperCase().split(",");
+    	if(t.length>=5) {
+    		if(((t[0]+t[1]).length()<=25)&&((t[2]).length()<=15)) {
+        	 	addressLine1=(t[0]+","+t[1]+","+t[2]);
+        	 	addressLine2=(t[3]+","+t[4]);
+        	}
+        	else {
+        		addressLine1=(t[0]+","+t[1]);
+        	 	addressLine2=(t[2]+","+t[3]);
+        	 	addressLine3=(t[4]);
+        	}
+    	}
+    	else {
+        	 	addressLine1=(t[0]+","+t[1]);
+        	 	addressLine2=(t[2]+","+t[3]);
+    	}
+    	//uInfoVal.setMobileNo("9825039684,26622505");
+    	String contactInfo=new String();
+    //	System.out.println(uInfoVal.getMobileNo());
+    	if(uInfoVal.getMobileNo().length()>12) {
+    		String [] splitval=uInfoVal.getMobileNo().split(",");
+			
+			  for(int i=0;i<splitval.length;i++) { if(splitval[i].length()<10) {
+			  contactInfo=contactInfo.concat(" (O) "+splitval[i]); } else {
+			  contactInfo=contactInfo.concat(" (M) "+splitval[i]); } }
+			 
+			  }
+			  
+    	else {
+    	
+    		contactInfo=contactInfo.concat(uInfoVal.getMobileNo());
+    	}
+    		
+    		
+    	
+    	Chunk ch1=new Chunk(" "+uInfoVal.getName().toUpperCase());
+    	Chunk ch2=new Chunk("\n "+addressLine1);
+    	Chunk ch3=new Chunk("\n "+addressLine2);
+    	Chunk ch5=new Chunk();
+    	if(addressLine3.length()>1) 
+    		ch5.append("\n"+addressLine3);
+    	
+    	Chunk ch4=new Chunk("\n TEL : "+contactInfo);
     	
     	Phrase phrase = new Phrase();
     	phrase.add(ch1);
     	phrase.add(ch2);
     	phrase.add(ch3);
+    	if(!ch5.isEmpty())
+    		phrase.add(ch5);
     	phrase.add(ch4);
+    	
+    	
     	
     	Paragraph p1=new Paragraph();
     	p1.add(phrase);
     	p1.setAlignment(Paragraph.ALIGN_CENTER);
-    	p1.setSpacingAfter(20);
+    	p1.setSpacingAfter(20F);
     	doc.add(p1);
     	
     }
-    private static void reciverInfoAddress(Document doc) throws DocumentException{
+    private static void reciverInfoAddress(Document doc,InvestorInfo toWhom) throws DocumentException{
+    	String [] addressSplit =toWhom.getAddress().toUpperCase().split(",");
+    	Chunk add7=new Chunk("\n ");
+    	Chunk add8=new Chunk("\n ");
+    	Chunk add9=new Chunk("\n ");
+    	
+    	if(addressSplit[0].length()+addressSplit[1].length()+addressSplit[2].length()<=36) {
+    		add7.append(addressSplit[0]+","+addressSplit[1]+","+addressSplit[2]);
+    		if(addressSplit.length==4) {
+    			add8.append(addressSplit[3]);}
+    		else if(addressSplit.length==5)
+    			add8.append(addressSplit[3]+","+addressSplit[4]);
+    		else if(addressSplit.length==6) {
+    			add8.append(addressSplit[3]+","+addressSplit[4]);
+    			add9.append(addressSplit[5]);
+    		}
+    			
+    	}else if(addressSplit[0].length()+addressSplit[1].length()+addressSplit[2].length()>36) {
+    		add7.append(addressSplit[0]+","+addressSplit[1]);
+    		add8.append(addressSplit[2]+","+addressSplit[3]);
+    		if(addressSplit.length==5)
+    			add9.append(addressSplit[4]);
+    		else if(addressSplit.length==6)
+    			add9.append(addressSplit[4]+","+addressSplit[5]);
+    	}
     	Chunk ch5=new Chunk(" To,");
-    	Chunk ch6=new Chunk("\n P05: Rameshbhai m patel");
-    	Chunk add7=new Chunk("\n Arvind Colony,N/R,Commisioner off");
-    	Chunk add8=new Chunk("\n Shaibaug road,");
-    	Chunk add9=new Chunk("\n Ahmedabad-380004");
+    	Chunk ch6=new Chunk("\n "+toWhom.getFamilyCode()+": "
+    	+toWhom.getFirstName().toUpperCase()+" "+toWhom.getMiddleName().toUpperCase()
+    	+" "+toWhom.getLastName().toUpperCase());
     	
     	Phrase phrase = new Phrase();
     	phrase.add(ch5);
     	phrase.add(ch6);
     	phrase.add(add7);
     	phrase.add(add8);
-    	phrase.add(add9);
+    	if(!add9.isEmpty())
+    		phrase.add(add9);
     	
     	Paragraph p1=new Paragraph();
     	p1.add(phrase);
@@ -333,12 +411,14 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	p1.setSpacingAfter(20F); 
     	doc.add(p1); 	
     }
-    private static void generalInfoWidrowal(Document doc) throws DocumentException {
+    private static void generalInfoWidrowal(Document doc,QueryObjectDetails queyObject) throws DocumentException {
 		// TODO Auto-generated method stub
+		SimpleDateFormat sm = new SimpleDateFormat("mm-dd-yyyy");
+
     	Chunk ch10=new Chunk("\n \n Dear Sir/Madam,");
     	Chunk ch11=new Chunk("\n \t \t \t \t \t \t \t \t \t \t \t \t Following FDR are matured on below mentioned dates .So, Kindly Contact us.");
     	Chunk ch12=new Chunk("\n \n \t \t \t \t \t \t \t \t \t \t \t \t MATURITY FOR THE PERIOD : ");
-    	Chunk ch13=new Chunk("\t \t	 01/02/1997 TO 03/02/1997");
+    	Chunk ch13=new Chunk("\t \t	 "+sm.format(queyObject.getInitialDate())+" TO "+sm.format(queyObject.getLastDate()));
     	Phrase phrase = new Phrase();
     	phrase.add(ch10);
     	phrase.add(ch11);
@@ -352,13 +432,8 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	doc.add(p1);
     	doc.add(line);
 	}
-    private static void tablegenerator(Document doc) throws DocumentException {
+    private static PdfPTable tablegenerator(Document doc,PdfPTable table) throws DocumentException {
 		// TODO Auto-generated method stub
-    	PdfPTable table=new PdfPTable(6);
-    	table.setWidthPercentage(90);
-    	table.setSpacingBefore(5f);
-    	float[] columnWidths = {1f,3f,4f,3f,3f,4f};
-    	table.setWidths(columnWidths);
 
     	Stream.of("SR"," MATU.DATE \n DEPO.DATE","INVESTOR NAME","COMPANY NAME"," DEPO. AMT \n MATU. AMT","CERTIFICTE NO.")
     	.forEach(e->{
@@ -368,14 +443,59 @@ public class FirebaseUserImpl implements IfirebaseUser{
     		headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
     		headerCell.setPadding(5f);
     		headerCell.setUseBorderPadding(true);
-
-
     		headerCell.setPhrase(new Phrase(e));
     		table.addCell(headerCell);
-    		
     	});
 		
+    	return table;
+	}
+    private static void addlistToPdf(Document doc,PdfPTable table,List<FullInvestorInfo> dataList) throws DocumentException{
+    	IntStream.range(0,dataList.size()).forEach(e->{
+    		//System.out.println(e);
+    		if(dataList.get(e).getFdInfo().size()>1) {
+    			
+    		}
+    		SimpleDateFormat sm = new SimpleDateFormat("mm-dd-yyyy");
+    		String matuDate = sm.format(dataList.get(e).getFdInfo().get(0).getMaturityDate());
+    		String strDate = sm.format(dataList.get(e).getFdInfo().get(0).getStartDate());
+    		PdfPCell matudepoCell=new PdfPCell(new Phrase(matuDate+"\n \n"+strDate));
+    		PdfPCell investoreNameCell=new PdfPCell(new Phrase(dataList.get(e).getInvestor().getFirstName()+" "
+    		+dataList.get(e).getInvestor().getLastName()));
+			PdfPCell fdCompanyCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(0).getComapnyName()));
+    		PdfPCell matudepoAmmCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(0).getAmount()+"\n \n"+
+    		dataList.get(e).getFdInfo().get(0).getMaturatyAmount()));
+    		PdfPCell certiCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(0).getCertificateNo()));	
+    		
+    		table.addCell(""+(e+1));
+    		table.addCell(matudepoCell);
+    		table.addCell(investoreNameCell);
+    		table.addCell(fdCompanyCell);
+    		table.addCell(matudepoAmmCell);
+    		table.addCell(certiCell);
+ 
+    	});
     	doc.add(table);
+    }
+    
+
+	@Override
+	public InvestorInfo getFamliyHeadForFamilyCode(String Idvar, String currentId)
+			throws FirebaseAuthException, InterruptedException, ExecutionException {
+		// TODO Auto-generated method stub
+		Firestore dbFirestore = FirestoreClient.getFirestore();
+		CollectionReference collRef=dbFirestore.collection(currentId);
+		List<String> selfValues=new ArrayList<>();
+		selfValues.add("Self");selfValues.add("self");selfValues.add("SELF");
+		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",Idvar)
+		.whereIn("familyHead",selfValues).get().get().getDocuments();
+			//System.out.println(documentInfo.get(0).toObject(InvestorInfo.class));z
+		if(documentInfo.size()==1)
+			return documentInfo.get(0).toObject(InvestorInfo.class);
+		
+		else
+			return null;
+		
+			
 	}
 
 	
