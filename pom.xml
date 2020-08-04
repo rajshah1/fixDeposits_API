@@ -75,6 +75,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalname>firebase-fdproject</finalname>
 	</build>
 
 </project>
