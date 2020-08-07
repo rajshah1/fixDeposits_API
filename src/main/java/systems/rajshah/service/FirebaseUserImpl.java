@@ -1,7 +1,8 @@
 package systems.rajshah.service;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -255,7 +256,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 }
 
 	@Override
-	public Object generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
+	public ByteArrayInputStream generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
 		// TODO Auto-generated method stub
 		//from currentID find User Details
 		UserInfo uInfo=this.getCurrentUserDetails(currentUid);
@@ -268,10 +269,12 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	float[] columnWidths = {1f,3f,4f,3f,3f,4f};
     	table.setWidths(columnWidths);
     	List<FullInvestorInfo> genListForFamilyCode=this.getfullInfoByFamilyCode(Idvar, queyObject, currentUid);
+    	ByteArrayOutputStream bout=new ByteArrayOutputStream();
     	try {
     		//		Font fs15=new Font(Font.FontFamily.TIMES_ROMAN,15);
     				Font fs10=FontFactory.getFont(FontFactory.COURIER,10);
-    				PdfWriter.getInstance(doc, new FileOutputStream("test.pdf"));
+    				//PdfWriter.getInstance(doc, new FileOutputStream("test.pdf"));
+    				PdfWriter.getInstance(doc, bout);
     				doc.open();
     				addMetadata(doc,uInfo.getName());
     				myInfoHeader(doc,fs10,uInfo);
@@ -279,11 +282,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
     				generalInfoWidrowal(doc,queyObject);
     				PdfPTable table1=tablegenerator(doc,table);
     				addlistToPdf(doc,table1,genListForFamilyCode);
+    				footerCustInmp(doc);
     				doc.close();
     		
-    			} catch (FileNotFoundException e) {
-    				// TODO Auto-generated catch block
-    				e.printStackTrace();
     			} catch (DocumentException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -291,7 +292,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
 		
 		
-		return null;
+		return new ByteArrayInputStream(bout.toByteArray());
 		
 	}
 	
@@ -350,18 +351,12 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	
     	Chunk ch4=new Chunk("\n TEL : "+contactInfo);
     	
-    	Phrase phrase = new Phrase();
-    	phrase.add(ch1);
-    	phrase.add(ch2);
-    	phrase.add(ch3);
-    	if(!ch5.isEmpty())
-    		phrase.add(ch5);
-    	phrase.add(ch4);
-    	
-    	
-    	
     	Paragraph p1=new Paragraph();
-    	p1.add(phrase);
+    	p1.add(ch1);p1.add(ch2);p1.add(ch3);
+    	if(!ch5.isEmpty())
+    		p1.add(ch5);
+    	p1.add(ch4);
+    	
     	p1.setAlignment(Paragraph.ALIGN_CENTER);
     	p1.setSpacingAfter(20F);
     	doc.add(p1);
@@ -397,36 +392,27 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	+toWhom.getFirstName().toUpperCase()+" "+toWhom.getMiddleName().toUpperCase()
     	+" "+toWhom.getLastName().toUpperCase());
     	
-    	Phrase phrase = new Phrase();
-    	phrase.add(ch5);
-    	phrase.add(ch6);
-    	phrase.add(add7);
-    	phrase.add(add8);
-    	if(!add9.isEmpty())
-    		phrase.add(add9);
     	
     	Paragraph p1=new Paragraph();
-    	p1.add(phrase);
+    	p1.add(ch5);p1.add(ch6);p1.add(add7);p1.add(add8);
+    	if(!add9.isEmpty())
+    		p1.add(add9);
     	p1.setAlignment(Paragraph.ALIGN_LEFT);
     	p1.setSpacingAfter(20F); 
     	doc.add(p1); 	
     }
     private static void generalInfoWidrowal(Document doc,QueryObjectDetails queyObject) throws DocumentException {
 		// TODO Auto-generated method stub
-		SimpleDateFormat sm = new SimpleDateFormat("mm-dd-yyyy");
-
+		SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
+		//System.out.println(queyObject.getInitialDate()+"\n"+queyObject.getLastDate());
     	Chunk ch10=new Chunk("\n \n Dear Sir/Madam,");
     	Chunk ch11=new Chunk("\n \t \t \t \t \t \t \t \t \t \t \t \t Following FDR are matured on below mentioned dates .So, Kindly Contact us.");
     	Chunk ch12=new Chunk("\n \n \t \t \t \t \t \t \t \t \t \t \t \t MATURITY FOR THE PERIOD : ");
     	Chunk ch13=new Chunk("\t \t	 "+sm.format(queyObject.getInitialDate())+" TO "+sm.format(queyObject.getLastDate()));
-    	Phrase phrase = new Phrase();
-    	phrase.add(ch10);
-    	phrase.add(ch11);
-    	phrase.add(ch12);
-    	phrase.add(ch13);
+    
     	
     	Paragraph p1=new Paragraph();
-    	p1.add(phrase);
+    	p1.add(ch10);p1.add(ch11);p1.add(ch12);p1.add(ch13);
     	p1.setSpacingAfter(10F); 
     	DottedLineSeparator line =new DottedLineSeparator();
     	doc.add(p1);
@@ -449,33 +435,74 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		
     	return table;
 	}
+    static int fdInfoListCounter=0;
     private static void addlistToPdf(Document doc,PdfPTable table,List<FullInvestorInfo> dataList) throws DocumentException{
-    	IntStream.range(0,dataList.size()).forEach(e->{
-    		//System.out.println(e);
-    		if(dataList.get(e).getFdInfo().size()>1) {
-    			
-    		}
-    		SimpleDateFormat sm = new SimpleDateFormat("mm-dd-yyyy");
-    		String matuDate = sm.format(dataList.get(e).getFdInfo().get(0).getMaturityDate());
-    		String strDate = sm.format(dataList.get(e).getFdInfo().get(0).getStartDate());
-    		PdfPCell matudepoCell=new PdfPCell(new Phrase(matuDate+"\n \n"+strDate));
-    		PdfPCell investoreNameCell=new PdfPCell(new Phrase(dataList.get(e).getInvestor().getFirstName()+" "
-    		+dataList.get(e).getInvestor().getLastName()));
-			PdfPCell fdCompanyCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(0).getComapnyName()));
-    		PdfPCell matudepoAmmCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(0).getAmount()+"\n \n"+
-    		dataList.get(e).getFdInfo().get(0).getMaturatyAmount()));
-    		PdfPCell certiCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(0).getCertificateNo()));	
-    		
-    		table.addCell(""+(e+1));
-    		table.addCell(matudepoCell);
-    		table.addCell(investoreNameCell);
-    		table.addCell(fdCompanyCell);
-    		table.addCell(matudepoAmmCell);
-    		table.addCell(certiCell);
- 
+		//System.out.println(dataList.toString());
+    	IntStream.range(0,dataList.size()).parallel().forEach(e->{
+    		IntStream.range(0,dataList.get(e).getFdInfo().size()).parallel().forEach(i->{
+    	    	SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
+        		String matuDate = sm.format(dataList.get(e).getFdInfo().get(i).getMaturityDate());
+        		String strDate = sm.format(dataList.get(e).getFdInfo().get(i).getStartDate());
+        		PdfPCell matudepoCell=new PdfPCell(new Phrase(matuDate+"\n \n"+strDate));
+        		PdfPCell investoreNameCell=new PdfPCell(new Phrase(dataList.get(e).getInvestor().getFirstName()+" "
+        		+dataList.get(e).getInvestor().getLastName()));
+    			PdfPCell fdCompanyCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(i).getComapnyName()));
+        		PdfPCell matudepoAmmCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(i).getAmount()+"\n \n"+
+        		dataList.get(e).getFdInfo().get(i).getMaturatyAmount()));
+        		PdfPCell certiCell=new PdfPCell(new Phrase(dataList.get(e).getFdInfo().get(i).getCertificateNo()));	
+        		
+				/*
+				 * System.out.println("E "+e+"I "+i+"SR NO "+fdInfoListCounter);
+				 * System.out.println("Dates are "+e+" : "+dataList.get(e).getFdInfo().get(i).
+				 * getStartDate()+"   "+dataList.get(e).getFdInfo().get(i).getMaturityDate());
+				 * System.out.println("Names Are :"+dataList.get(e).getInvestor().getFirstName()
+				 * +"   "+dataList.get(e).getInvestor().getLastName());
+				 * System.out.println("fdCopanyNmae "+dataList.get(e).getFdInfo().get(i).
+				 * getComapnyName());
+				 * System.out.println("Amount Are :"+dataList.get(e).getFdInfo().get(i).
+				 * getAmount()+"   "+dataList.get(e).getFdInfo().get(i).getMaturatyAmount());
+				 * System.out.println("Certificate No"+dataList.get(e).getFdInfo().get(i).
+				 * getCertificateNo());
+				 */		
+        		matudepoCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+        		matudepoCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+        		investoreNameCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+        		investoreNameCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+        		fdCompanyCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+        		fdCompanyCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+        		matudepoAmmCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+        		matudepoAmmCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+        		certiCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+        		certiCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+        		table.addCell(""+(++fdInfoListCounter));
+        		table.addCell(matudepoCell);
+        		table.addCell(investoreNameCell);
+        		table.addCell(fdCompanyCell);
+        		table.addCell(matudepoAmmCell);
+        		table.addCell(certiCell);
+    		});
     	});
-    	doc.add(table);
+    	fdInfoListCounter=0;
+    	table.setSpacingAfter(20F);	
+    	doc.add(table); 	
     }
+    
+    
+    private static void footerCustInmp(Document doc) {
+    	DottedLineSeparator line =new DottedLineSeparator();
+    	try {
+			doc.add(line);
+			Paragraph p1=new Paragraph("Please Ignore Entries if Any of the above FDR's were premature");
+			p1.setAlignment(Paragraph.ALIGN_CENTER);
+			doc.add(p1);
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+    }
+    
+    
     
 
 	@Override
@@ -491,7 +518,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			//System.out.println(documentInfo.get(0).toObject(InvestorInfo.class));z
 		if(documentInfo.size()==1)
 			return documentInfo.get(0).toObject(InvestorInfo.class);
-		
 		else
 			return null;
 		

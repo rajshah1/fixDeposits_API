@@ -1,9 +1,14 @@
 package systems.rajshah.controller;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,9 +69,16 @@ public class fdprojectRestController {
 	}
 	
 	
-	@GetMapping(value="/{currentUid}/generateCustIntiByFid/{id}",produces="application/pdf")
-	public Object generateCustInByFid(@PathVariable("id") String idvarable,@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException{
-		return ifirebaseuser.generateCustomerIntimationReport(idvarable, queryFullDetails, currentUid);
+	@GetMapping(value="/{currentUid}/generateCustIntiByFid/{id}")
+	public ResponseEntity<InputStreamResource> generateCustInByFid(@PathVariable("id") String idvarable,@RequestBody QueryObjectDetails queryFullDetails,@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException{
+		ByteArrayInputStream bis= ifirebaseuser.generateCustomerIntimationReport(idvarable, queryFullDetails, currentUid);
+		HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename="+idvarable+".pdf");
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
 	}
 	
 	@GetMapping(value="/{currentUid}/getFamilyHeadDetails/{id}",produces="application/json")

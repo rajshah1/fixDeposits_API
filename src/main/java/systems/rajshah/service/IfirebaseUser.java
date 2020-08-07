@@ -1,5 +1,6 @@
 package systems.rajshah.service;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -19,7 +20,7 @@ public String createFdInfo(FdInfo fdInfo,String currentUid) throws FirebaseAuthE
 public FullInvestorInfo getfullInfo(String Idvar,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
 public List<FullInvestorInfo> getInvestInfoBtDates(QueryObjectDetails queyObject,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
 public List<FullInvestorInfo> getfullInfoByFamilyCode(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException; 
-public Object generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException; 
+public ByteArrayInputStream generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException; 
 public InvestorInfo getFamliyHeadForFamilyCode(String Idvar,String currentId) throws FirebaseAuthException, InterruptedException, ExecutionException; 
 
 }
