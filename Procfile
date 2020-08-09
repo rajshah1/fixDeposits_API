@@ -1,1 +1,1 @@
-web: java -jar target/firebase-fdproject-0.0.1-SNAPSHOT.jar
+web: java -jar target/fdproject-firebase-app.jar
