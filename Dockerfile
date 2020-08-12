@@ -1,10 +1,11 @@
 FROM openjdk:8-jdk-alpine as builder
 MAINTAINER Raj Shah
-COPY . /tmp/
-WORKDIR /tmp/
+RUN mkdir -p /app/source
+COPY . /app/source
+WORKDIR /app/source
 RUN ./mvnw clean package 
 
 FROM openjdk:8-jdk-alpine as final_build
-COPY --from=builder ./tmp/target/*.jar app.jar
+COPY --from=builder /app/source/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","app.jar"]
