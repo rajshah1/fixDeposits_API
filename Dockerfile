@@ -1,4 +1,10 @@
-FROM openjdk:8-alpine
-ADD target/fdproject-firebase-app.jar  app.jar
+FROM openjdk:8-jdk-alpine as builder
+MAINTAINER Raj Shah
+COPY . /tmp/
+WORKDIR /tmp/
+RUN mvn package 
+
+FROM openjdk:8-jdk-alpine as final_build
+COPY --from=builder ./tmp/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","app.jar"]
