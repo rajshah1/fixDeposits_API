@@ -21,7 +21,6 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: run application
     - name: Test File structure for .jar File
       run: |
           cd ./target
