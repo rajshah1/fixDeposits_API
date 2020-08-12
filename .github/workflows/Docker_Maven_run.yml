@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java Create and 
+name: Test Build & Docker Registory Push
 
 on:
   push:
@@ -21,14 +21,9 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - id: runapp
-      name: run application
+    - name: run application
+    - name: Test File structure for .jar File
       run: |
-          mvn clean install
-          echo "$(ls)"
-    - name: File structure
-      run: |
-          ls
           cd ./target
           echo "In the Target"
           ls
@@ -40,9 +35,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: rajshah1/fdproject-app
           tag_with_ref: true
-          tag_with_sha: true
-    - name: FIle system test
-      run : echo "$(ls)"
-              
-              
-          
+          tag_with_sha: true              
