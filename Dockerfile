@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-alpine as builder
 MAINTAINER Raj Shah
 COPY . /tmp/
-WORKDIR /tmp
+WORKDIR /tmp/
 RUN chmod +x ./mvnw clean package 
 
 FROM openjdk:8-jdk-alpine as final_build
