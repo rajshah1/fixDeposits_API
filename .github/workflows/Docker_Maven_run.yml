@@ -27,20 +27,21 @@ jobs:
           echo "In the Target"
           ls
       shell: bash
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v1
-      with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: rajshah1/fdproject-app
-          tag_with_ref: true
-          tag_with_sha: true
+      # Only Run When you want to Push 
+#     - name: Build and push Docker images
+#       uses: docker/build-push-action@v1
+#       with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+#           repository: rajshah1/fdproject-app
+#           tag_with_ref: true
+#           tag_with_sha: true
     - name: Github Docker package
       uses: docker/build-push-action@v1
       with:
           username: rajshah1
           password: ${{ secrets.GIT_TOKEN }}
           registry: docker.pkg.github.com
-          repository: docker.pkg.github.com/firebase-fdproject/rajshah1/fdproject-app
+          repository: firebase-fdproject/rajshah1/fdproject-app
           tags: latest
       
