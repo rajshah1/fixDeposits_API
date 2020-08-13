@@ -8,7 +8,7 @@ image:
   repository: rajshah1/fdproject-app
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "sha-52960ca"
+  tag: "sha-f333e1c"
 containerPort: 8080
 namespace: "dev-rp-info" 
 imagePullSecrets: []
