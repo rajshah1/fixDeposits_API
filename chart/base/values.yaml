@@ -5,10 +5,10 @@
 replicaCount: 3
 
 image:
-  repository: rajshah1/fdproject-app
+  repository: rajshah1/fdproject-fireapp
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "sha-f333e1c"
+  tag: "v2"
 containerPort: 8080
 namespace: "dev-rp-info" 
 imagePullSecrets: []
