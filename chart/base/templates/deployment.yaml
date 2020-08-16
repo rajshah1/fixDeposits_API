@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   name: {{ include "base.fullname" . }}
   labels:
-    {{- include "base.labels" . | nindent 4 }}
-    namespace: {{.Values.namespace }}
+    {{ include "base.labels" . | nindent 4 }}
+  namespace: {{ .Values.namespace }}
 spec:
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -33,6 +33,13 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: SECRET_CRED
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "base.fullname" . }}
+                  key: GOOGLE_CREDENTIALS
+          command: ['bin/sh','-c',"echo $(SECRET_CRED) > /app/google-credentials.json"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -41,13 +48,21 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            periodSeconds: {{ .Values.periodSeconds }}
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            periodSeconds: {{ .Values.periodSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+#      volumes:
+#      - name: 
+#        secret:
+#          secretName: {{ include "base.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

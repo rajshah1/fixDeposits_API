@@ -8,15 +8,12 @@ image:
   repository: rajshah1/fdproject-fireapp
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v2"
+  tag: "v4"
 containerPort: 8080
 namespace: "dev-rp-info" 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
-route:
-  enabled: true
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -44,6 +41,10 @@ service:
   type: LoadBalancer
   port: 80
   targetPort: 9080
+
+initialDelaySeconds: 30
+periodSeconds: 600
+
 
 ingress:
   enabled: false
