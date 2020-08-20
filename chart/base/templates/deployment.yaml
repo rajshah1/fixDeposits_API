@@ -6,72 +6,58 @@ metadata:
     {{ include "base.labels" . | nindent 4 }}
   namespace: {{ .Values.namespace }}
 spec:
-{{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-{{- end }}
   selector:
     matchLabels:
-      {{- include "base.selectorLabels" . | nindent 6 }}
+      {{ include "base.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+#      annotations: 
       labels:
-        {{- include "base.selectorLabels" . | nindent 8 }}
+        {{ include "base.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       serviceAccountName: {{ include "base.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort}}
+              protocol: TCP
           env:
-            - name: SECRET_CRED
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /app/google-credentials.json
+            - name: GAC_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "base.fullname" . }}
                   key: GOOGLE_CREDENTIALS
-          command: ['bin/sh','-c',"echo $(SECRET_CRED) > /app/google-credentials.json"]
+          command: ["bin/sh","-c","echo $GAC_SECRET > ./app/google-credentials.json;java -jar app.jar"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.containerPort }}
-              protocol: TCP
           livenessProbe:
             httpGet:
               path: /
-              port: {{ .Values.containerPort }}
+              port: http
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-            periodSeconds: {{ .Values.periodSeconds }}
+            periodSeconds: {{ .Values.periodSeconds }}  
           readinessProbe:
             httpGet:
               path: /
-              port: {{ .Values.containerPort }}
+              port: http
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-            periodSeconds: {{ .Values.periodSeconds }}
+            periodSeconds: {{ .Values.periodSeconds }}  
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-#      volumes:
-#      - name: 
-#        secret:
-#          secretName: {{ include "base.fullname" . }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-        affinity:
-          {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-        tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+            {{ toYaml .Values.resources | nindent 12 }}
+#      {{ with .Values.nodeSelector }}
+#      nodeSelector:
+#        {{- toYaml . | nindent 8 }}
+#      {{- end }}
+#      {{- with .Values.affinity }}
+#        {{- toYaml . | nindent 8 }}
+#      {{- end }}
+#      {{- with .Values.tolerations }}
+#      tolerations:
+#        {{- toYaml . | nindent 8 }}
+#      {{- end }}

@@ -2,18 +2,21 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 3
+replicaCount: 1
 
 image:
   repository: rajshah1/fdproject-fireapp
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v5"
-containerPort: 8080
-namespace: "dev-rp-info" 
+  tag: "RL-2"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+
+containerPort: 8080
+namespace: "rajshah-info"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -40,11 +43,9 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 80
-  targetPort: 9080
 
 initialDelaySeconds: 30
 periodSeconds: 600
-
 
 ingress:
   enabled: false

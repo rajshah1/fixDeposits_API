@@ -40,6 +40,7 @@ helm.sh/chart: {{ include "base.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app: {{ include "base.fullname" .}}
 {{- end }}
 
 {{/*
@@ -48,7 +49,7 @@ Selector labels
 {{- define "base.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "base.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: {{ include "base.fullname" . }}
+app: {{ include "base.fullname" .}}
 {{- end }}
 
 {{/*

@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "base.fullname" . }}
   labels:
-    {{ include "base.labels" . | nindent 4 }}
+    {{- include "base.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,6 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{ include "base.selectorLabels" . | nindent 4 }}
-    
-    
+    {{- include "base.selectorLabels" . | nindent 4 }}
