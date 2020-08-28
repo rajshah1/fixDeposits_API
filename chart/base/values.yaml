@@ -8,7 +8,7 @@ image:
   repository: rajshah1/fdproject-fireapp
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "RL-2"
+  tag: "v15"
 
 imagePullSecrets: []
 nameOverride: ""

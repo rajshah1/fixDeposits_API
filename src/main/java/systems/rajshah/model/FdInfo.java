@@ -6,30 +6,28 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FdInfo {
-	public String id;
-	public String comapnyName;
-	public Date startDate;
-	public int period;
-	public Date maturityDate;
-	public String firstName;
-	public String secondName;
-	public String thirdName;
-	public String nomineeName;
-	public Boolean newOrRenew;
-	public Boolean checkOrCash;
-	public int amount;
-	public String scheme;
-	public String chequeNo;
-	public String drawnOfBank;
-	public String branch;
-	public int maturatyAmount;
-	public String certificateNo;
-	public String uid;
+	private String id;
+	private String comapnyName;
+	private Date startDate;
+	private int period;
+	private Date maturityDate;
+	private String firstName;
+	private String secondName;
+	private String thirdName;
+	private String nomineeName;
+	private Boolean newOrRenew;
+	private Boolean checkOrCash;
+	private int amount;
+	private String scheme;
+	private String chequeNo;
+	private String drawnOfBank;
+	private String branch;
+	private int maturatyAmount;
+	private String certificateNo;
+	private String uid;
 	
 	public FdInfo() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+		super();}
 
 	
 	

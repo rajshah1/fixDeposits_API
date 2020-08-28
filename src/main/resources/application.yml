@@ -1,0 +1,22 @@
+debug: false
+logging:
+  level:
+    root: info
+    systems:
+      rajshah:
+        "*": info
+
+# this will update the /actuator/health to /health
+management:
+  endpoints:
+    web:
+      base-path: "/"
+server:
+  port: "${PORT:8080}"
+spring:
+  application:
+    name: "fd-db-info"
+
+#eureka.instance.hostname=${DOAIN_NAME:localhost}
+#eureka.client.serviceUrl.defaultZone=${EUREKA_SERVER_URL:http://localhost:8761}/eureka/
+   

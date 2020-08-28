@@ -6,12 +6,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FullInvestorInfo {
-	public InvestorInfo investor;	
-	public List<FdInfo> fdInfo;
+	private InvestorInfo investor;	
+	private List<FdInfo> fdInfo;
 	
 	public FullInvestorInfo() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public InvestorInfo getInvestor() {

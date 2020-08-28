@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
@@ -50,8 +52,9 @@ import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 
 
 @Service
-public class FirebaseUserImpl implements IfirebaseUser{
-	
+public class FirebaseUserImpl implements IfirebaseUser{  
+	private static final Logger logger=LoggerFactory.getLogger(FirebaseUserImpl.class);
+	String fdInfoVar="fdInfo";
 	@Override
 	public UserInfo getCurrentUserDetails(String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
@@ -87,7 +90,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
 	@Override
 	public String createInvestorInfo(InvestorInfo investInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference collRef=dbFirestore.collection(currentUid);
 		DocumentSnapshot fullCountMap=collRef.document("alphaCounter").get().get();
@@ -98,7 +100,8 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		investInfo.setId(idString);
 		ApiFuture<WriteResult> future=dbFirestore.collection(currentUid).document(idString).set(investInfo);
 		future.get();
-		//System.out.println("Added on: "+future.get().getUpdateTime());
+		logger.info("TargetOperation:documentwithsameF TargetModule:FirebaseUserImpl "
+				+ "TargetComponent:Service :: UserCreatedOn",future.get().getUpdateTime());
 		Map<String, Object> updates = new HashMap<>();
 		updates.put(investInfo.getLastName().substring(0, 1).toLowerCase(), currentNumber+1);
 		collRef.document("alphaCounter").update(updates);
@@ -109,31 +112,25 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
 	@Override
 	public String createFdInfo(FdInfo fdInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference collRef=dbFirestore.collection(currentUid);
-		
-		ApiFuture<DocumentReference> future=collRef.document(fdInfo.getId()).collection("fdInfo").add(fdInfo);
+		ApiFuture<DocumentReference> future=collRef.document(fdInfo.getId()).collection(fdInfoVar).add(fdInfo);
 		future.get();
-		//System.out.println("Added");
-		//System.out.println(fdInfo);
-	
 		return "";
 	}
 
 	
 	@Override
-	public FullInvestorInfo getfullInfo(String Idvar,String currentUid)
+	public FullInvestorInfo getfullInfo(String idVar,String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
 		FullInvestorInfo fullData=new FullInvestorInfo();
 		InvestorInfo investInfo=null;
 		FdInfo fdInformation=null;
-		List<FdInfo> t=new ArrayList<FdInfo>();
+		List<FdInfo> t=new ArrayList<>();
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference collRef=dbFirestore.collection(currentUid);
-		DocumentSnapshot documentInfo=collRef.document(Idvar).get().get();
-		ApiFuture<QuerySnapshot> fdInfos=collRef.document(Idvar).collection("fdInfo").get();
+		DocumentSnapshot documentInfo=collRef.document(idVar).get().get();
+		ApiFuture<QuerySnapshot> fdInfos=collRef.document(idVar).collection(fdInfoVar).get();
 		
 		  if(documentInfo.exists()) {
 			  investInfo=documentInfo.toObject(InvestorInfo.class);
@@ -144,45 +141,41 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			  t.add(fdInformation);
 		}
 		fullData.setFdInfo(t);
-		//System.out.println("Full Info  ::: "+fullData);
 		return fullData;
 	}
 	@Override
 	public List<FullInvestorInfo> getInvestInfoBtDates(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
-	
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		List<String> test=new ArrayList<String>();
-		List<FullInvestorInfo> listfull= new ArrayList<FullInvestorInfo>();
+		List<String> test=new ArrayList<>();
+		List<FullInvestorInfo> listfull= new ArrayList<>();
 		CollectionReference collRef=dbFirestore.collection(currentUid);
-		String SearchFieldValue=queyObject.getSearchField();
+		String searchFieldValue=queyObject.getSearchField();
 		
-		List<QueryDocumentSnapshot> startDateResults=dbFirestore.collectionGroup("fdInfo")
-		.whereGreaterThanOrEqualTo(SearchFieldValue,queyObject.getInitialDate())
-		.whereLessThanOrEqualTo(SearchFieldValue,queyObject.getLastDate())
+		List<QueryDocumentSnapshot> startDateResults=dbFirestore.collectionGroup(fdInfoVar)
+		.whereGreaterThanOrEqualTo(searchFieldValue,queyObject.getInitialDate())
+		.whereLessThanOrEqualTo(searchFieldValue,queyObject.getLastDate())
 		.whereEqualTo("uid", currentUid).get().get().getDocuments();
 		
 		for (DocumentSnapshot documentData : startDateResults) {
 				FullInvestorInfo oneInstance=new FullInvestorInfo();	
-				List<FdInfo> fdInformation=new ArrayList<FdInfo>();
+				List<FdInfo> fdInformation=new ArrayList<>();
 				String currentFdId=documentData.getString("id");
 				
 				if(test.contains(currentFdId)) {
 						  List<InvestorInfo> resultListOfInvestors=listfull.stream()
-						  .map(e->e.investor).collect(Collectors.toList());
-						  			//System.out.println("palo "+resultListOfInvestors);
+						  .map(e->e.getInvestor()).collect(Collectors.toList());
 						  if(!resultListOfInvestors.isEmpty()) {
 							  Set<InvestorInfo> resultWhereIdCompareTrue=resultListOfInvestors.stream()
-									     .filter(e->e.getId().equals(currentFdId)==true).collect(Collectors.toSet());
+									     .filter(e->e.getId().equals(currentFdId)).collect(Collectors.toSet());
 							  
 											  resultWhereIdCompareTrue.forEach(obj->{ 
 											  int indexValue=resultListOfInvestors.indexOf(obj); 
 											  FullInvestorInfo oneInstance1=listfull.get(indexValue); 
 											  List<FdInfo> fdInformation1 =oneInstance1.getFdInfo();
 											  fdInformation1.add(documentData.toObject(FdInfo.class));
-											  oneInstance1.setFdInfo(fdInformation1); //
-								//			  System.out.println("One Instance"+oneInstance);
+											  oneInstance1.setFdInfo(fdInformation1);
+											  
 											  listfull.set(indexValue,oneInstance1);	  
 									});
 				
@@ -196,40 +189,35 @@ public class FirebaseUserImpl implements IfirebaseUser{
 					 listfull.add(oneInstance);
 
 					 test.add(currentFdId);
-			//		 System.out.println(test);
 				}
 		}
-		//System.out.println(listfull);
 		return listfull;
 	}
 
 	
 	
 	@Override
-	public List<FullInvestorInfo> getfullInfoByFamilyCode(String Idvar,QueryObjectDetails queyObject, String currentUid)
+	public List<FullInvestorInfo> getfullInfoByFamilyCode(String idVar,QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
-		List<FullInvestorInfo> fullData = new ArrayList<FullInvestorInfo>();
+		List<FullInvestorInfo> fullData = new ArrayList<>();
 		String Tp=queyObject.getSearchField();
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference collRef=dbFirestore.collection(currentUid);
-		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",Idvar).get().get().getDocuments();
+		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",idVar).get().get().getDocuments();
 	if(!documentInfo.isEmpty()) {	
 		for(DocumentSnapshot documentwithsameF:documentInfo) {
-		//	System.out.println(documentwithsameF);
-			 
-			List<QueryDocumentSnapshot> tet=collRef.document(documentwithsameF.getString("id")).collection("fdInfo")
+			logger.debug("TargetOperation:documentwithsameF TargetModule:FirebaseUserImpl "
+					+ "TargetComponent:Service :: DocumentWithSameFamily", documentwithsameF.toString());
+			List<QueryDocumentSnapshot> tet=collRef.document(documentwithsameF.getString("id")).collection(fdInfoVar)
 			.whereGreaterThanOrEqualTo(Tp,queyObject.getInitialDate()).whereLessThanOrEqualTo(Tp,queyObject.getLastDate())
 			.get().get().getDocuments();
 			
-			//InvestorInfo investInfo=new InvestorInfo();
-			//FdInfo fdInformation=null;
-			
 			if(!tet.isEmpty()) {
-				List<FdInfo> t=new ArrayList<FdInfo>();
+				List<FdInfo> t=new ArrayList<>();
 				FullInvestorInfo te=new FullInvestorInfo();
-				InvestorInfo investInfo=documentwithsameF.toObject(InvestorInfo.class);
-				//System.out.println(investInfo);
+				InvestorInfo investInfo=documentwithsameF.toObject(InvestorInfo.class);				
+				logger.debug("TargetOperation:documentwithsameF TargetModule:FirebaseUserImpl "
+						+ "TargetComponent:Service :: investInfo",investInfo);
 				tet.stream().forEach(e->{
 					FdInfo fdInformation=e.toObject(FdInfo.class);
 					t.add(fdInformation);
@@ -248,19 +236,15 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		
 		}
 	}
-	else {
-		return null;
-	}
 	return fullData;
 	
 }
 
 	@Override
-	public ByteArrayInputStream generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
-		// TODO Auto-generated method stub
+	public ByteArrayInputStream generateCustomerIntimationReport(String idVar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
 		//from currentID find User Details
 		UserInfo uInfo=this.getCurrentUserDetails(currentUid);
-		InvestorInfo familyheadaddressName=this.getFamliyHeadForFamilyCode(Idvar, currentUid);
+		InvestorInfo familyheadaddressName=this.getFamliyHeadForFamilyCode(idVar, currentUid);
 		Document doc=new Document();
     	doc.setMargins(10,10,0,0);
     	PdfPTable table=new PdfPTable(6);
@@ -268,26 +252,24 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	table.setSpacingBefore(5f);
     	float[] columnWidths = {1f,3f,4f,3f,3f,4f};
     	table.setWidths(columnWidths);
-    	List<FullInvestorInfo> genListForFamilyCode=this.getfullInfoByFamilyCode(Idvar, queyObject, currentUid);
+    	List<FullInvestorInfo> genListForFamilyCode=this.getfullInfoByFamilyCode(idVar, queyObject, currentUid);
     	ByteArrayOutputStream bout=new ByteArrayOutputStream();
     	try {
-    		//		Font fs15=new Font(Font.FontFamily.TIMES_ROMAN,15);
-    				Font fs10=FontFactory.getFont(FontFactory.COURIER,10);
-    				//PdfWriter.getInstance(doc, new FileOutputStream("test.pdf"));
+
     				PdfWriter.getInstance(doc, bout);
     				doc.open();
     				addMetadata(doc,uInfo.getName());
-    				myInfoHeader(doc,fs10,uInfo);
+    				myInfoHeader(doc,uInfo);
     				reciverInfoAddress(doc,familyheadaddressName);
     				generalInfoWidrowal(doc,queyObject);
-    				PdfPTable table1=tablegenerator(doc,table);
+    				PdfPTable table1=tablegenerator(table);
     				addlistToPdf(doc,table1,genListForFamilyCode);
     				footerCustInmp(doc);
     				doc.close();
     		
     			} catch (DocumentException e) {
     				// TODO Auto-generated catch block
-    				e.printStackTrace();
+    				logger.error("Error Occurred --> Context ", e);
     			}
 
 		
@@ -296,14 +278,14 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		
 	}
 	
-	private static void addMetadata(Document doc,String CurrentUserName){
+	private static void addMetadata(Document doc,String currentUserName){
     	doc.addCreationDate();
-		doc.addCreator(CurrentUserName);
+		doc.addCreator(currentUserName);
 		doc.addAuthor("rajshah.systems");
 		doc.addLanguage("English");
 
     }
-    private static void myInfoHeader(Document doc,Font f1,UserInfo uInfoVal) throws DocumentException{
+    private static void myInfoHeader(Document doc,UserInfo uInfoVal) throws DocumentException{
     	String addressLine1="";
     	String addressLine2="";
     	String addressLine3="";
@@ -323,9 +305,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
         	 	addressLine1=(t[0]+","+t[1]);
         	 	addressLine2=(t[2]+","+t[3]);
     	}
-    	//uInfoVal.setMobileNo("9825039684,26622505");
-    	String contactInfo=new String();
-    //	System.out.println(uInfoVal.getMobileNo());
+    	String contactInfo="";
     	if(uInfoVal.getMobileNo().length()>12) {
     		String [] splitval=uInfoVal.getMobileNo().split(",");
 			
@@ -363,54 +343,57 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	
     }
     private static void reciverInfoAddress(Document doc,InvestorInfo toWhom) throws DocumentException{
-    	String [] addressSplit =toWhom.getAddress().toUpperCase().split(",");
+    	logger.trace("Inside reciverInfoAddress"+toWhom.getFirstName());
+    	if(toWhom.getAddress().length()>0) {
     	Chunk add7=new Chunk("\n ");
     	Chunk add8=new Chunk("\n ");
     	Chunk add9=new Chunk("\n ");
+    	Chunk add10=new Chunk("\n ");
     	
-    	if(addressSplit[0].length()+addressSplit[1].length()+addressSplit[2].length()<=36) {
-    		add7.append(addressSplit[0]+","+addressSplit[1]+","+addressSplit[2]);
-    		if(addressSplit.length==4) {
-    			add8.append(addressSplit[3]);}
-    		else if(addressSplit.length==5)
-    			add8.append(addressSplit[3]+","+addressSplit[4]);
-    		else if(addressSplit.length==6) {
-    			add8.append(addressSplit[3]+","+addressSplit[4]);
-    			add9.append(addressSplit[5]);
-    		}
-    			
-    	}else if(addressSplit[0].length()+addressSplit[1].length()+addressSplit[2].length()>36) {
-    		add7.append(addressSplit[0]+","+addressSplit[1]);
-    		add8.append(addressSplit[2]+","+addressSplit[3]);
-    		if(addressSplit.length==5)
-    			add9.append(addressSplit[4]);
-    		else if(addressSplit.length==6)
-    			add9.append(addressSplit[4]+","+addressSplit[5]);
+    	if(toWhom.getAddress().length()>120 && toWhom.getAddress().length()<150) {
+    		add7.append(toWhom.getAddress().substring(0, 40));
+    		add8.append(toWhom.getAddress().substring(40, 75));
+    		add9.append(toWhom.getAddress().substring(75, 110));
+    		add10.append(toWhom.getAddress().substring(110,toWhom.getAddress().length()));
     	}
-    	Chunk ch5=new Chunk(" To,");
-    	Chunk ch6=new Chunk("\n "+toWhom.getFamilyCode()+": "
+    	else if(toWhom.getAddress().length()<120 && toWhom.getAddress().length()>85) {
+    		add7.append(toWhom.getAddress().substring(0,50));
+    		add8.append(toWhom.getAddress().substring(50,85));
+    		add9.append(toWhom.getAddress().substring(85,toWhom.getAddress().length()));
+    	}
+    	else if (toWhom.getAddress().length()<50) {
+    		add7.append(toWhom.getAddress());
+    	}
+    	else {
+    		int parts=toWhom.getAddress().length()/3;
+    		add7.append(toWhom.getAddress().substring(0,parts));
+    		add8.append(toWhom.getAddress().substring(parts,2*parts));
+    		add9.append(toWhom.getAddress().substring(2*parts,3*parts));
+    	}
+    	
+    		
+    	 Chunk ch6=new Chunk(" To,\n "+toWhom.getFamilyCode()+": "
     	+toWhom.getFirstName().toUpperCase()+" "+toWhom.getMiddleName().toUpperCase()
     	+" "+toWhom.getLastName().toUpperCase());
     	
     	
     	Paragraph p1=new Paragraph();
-    	p1.add(ch5);p1.add(ch6);p1.add(add7);p1.add(add8);
+    	p1.add(ch6);p1.add(add7);p1.add(add8);
     	if(!add9.isEmpty())
     		p1.add(add9);
     	p1.setAlignment(Paragraph.ALIGN_LEFT);
     	p1.setSpacingAfter(20F); 
     	doc.add(p1); 	
+    	
+    	}
     }
     private static void generalInfoWidrowal(Document doc,QueryObjectDetails queyObject) throws DocumentException {
-		// TODO Auto-generated method stub
 		SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
-		//System.out.println(queyObject.getInitialDate()+"\n"+queyObject.getLastDate());
     	Chunk ch10=new Chunk("\n \n Dear Sir/Madam,");
     	Chunk ch11=new Chunk("\n \t \t \t \t \t \t \t \t \t \t \t \t Following FDR are matured on below mentioned dates .So, Kindly Contact us.");
     	Chunk ch12=new Chunk("\n \n \t \t \t \t \t \t \t \t \t \t \t \t MATURITY FOR THE PERIOD : ");
-    	Chunk ch13=new Chunk("\t \t	 "+sm.format(queyObject.getInitialDate())+" TO "+sm.format(queyObject.getLastDate()));
-    
-    	
+    	Chunk ch13=new Chunk("\t \t"+sm.format(queyObject.getInitialDate())+" TO "+sm.format(queyObject.getLastDate()));
+   
     	Paragraph p1=new Paragraph();
     	p1.add(ch10);p1.add(ch11);p1.add(ch12);p1.add(ch13);
     	p1.setSpacingAfter(10F); 
@@ -418,8 +401,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	doc.add(p1);
     	doc.add(line);
 	}
-    private static PdfPTable tablegenerator(Document doc,PdfPTable table) throws DocumentException {
-		// TODO Auto-generated method stub
+    private static PdfPTable tablegenerator(PdfPTable table) {
 
     	Stream.of("SR"," MATU.DATE \n DEPO.DATE","INVESTOR NAME","COMPANY NAME"," DEPO. AMT \n MATU. AMT","CERTIFICTE NO.")
     	.forEach(e->{
@@ -437,7 +419,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	}
     static int fdInfoListCounter=0;
     private static void addlistToPdf(Document doc,PdfPTable table,List<FullInvestorInfo> dataList) throws DocumentException{
-		//System.out.println(dataList.toString());
+
     	IntStream.range(0,dataList.size()).parallel().forEach(e->{
     		IntStream.range(0,dataList.get(e).getFdInfo().size()).parallel().forEach(i->{
     	    	SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
@@ -486,8 +468,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	table.setSpacingAfter(20F);	
     	doc.add(table); 	
     }
-    
-    
     private static void footerCustInmp(Document doc) {
     	DottedLineSeparator line =new DottedLineSeparator();
     	try {
@@ -496,32 +476,55 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			p1.setAlignment(Paragraph.ALIGN_CENTER);
 			doc.add(p1);
 		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Context", e);
 		}
 
     }
-    
-    
-    
 
 	@Override
-	public InvestorInfo getFamliyHeadForFamilyCode(String Idvar, String currentId)
+	public InvestorInfo getFamliyHeadForFamilyCode(String idVar, String currentId)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference collRef=dbFirestore.collection(currentId);
 		List<String> selfValues=new ArrayList<>();
 		selfValues.add("Self");selfValues.add("self");selfValues.add("SELF");
-		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",Idvar)
+		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",idVar)
 		.whereIn("familyHead",selfValues).get().get().getDocuments();
 			//System.out.println(documentInfo.get(0).toObject(InvestorInfo.class));z
 		if(documentInfo.size()==1)
 			return documentInfo.get(0).toObject(InvestorInfo.class);
 		else
-			return null;
+			return null;		
+	}
+
+	@Override
+	public List<ByteArrayInputStream> getCustReportByDates(QueryObjectDetails queyObject, String currentUid)
+			throws FirebaseAuthException, InterruptedException, ExecutionException {
+		Firestore dbFirestore = FirestoreClient.getFirestore();
+		String searchFieldValue=queyObject.getSearchField();
+		List<ByteArrayInputStream> response=new ArrayList<>(); 
+		List<QueryDocumentSnapshot> startDateResults=dbFirestore.collectionGroup(fdInfoVar)
+		.whereGreaterThanOrEqualTo(searchFieldValue,queyObject.getInitialDate())
+		.whereLessThanOrEqualTo(searchFieldValue,queyObject.getLastDate())
+		.whereEqualTo("uid", currentUid).get().get().getDocuments();
 		
-			
+		startDateResults.parallelStream().forEach(e->{
+			String id=e.getString("familyCode");
+			logger.info("ID::"+id);
+				try {
+					ByteArrayInputStream bis = this.generateCustomerIntimationReport(id,queyObject,currentUid);
+					response.add(bis);
+				} catch (FirebaseAuthException | ExecutionException | DocumentException e1) {
+						logger.error("Error Occurred --> Context", e1);
+				} catch (InterruptedException e2) {
+					logger.error("InterruptedException Occurred For Operation: "
+							+ "generateCustomerIntimationReport in Method: getCustReportByDates :: Error Trace : "+e2);
+					Thread.currentThread().interrupt();
+				}
+		});
+		
+		return response;
 	}
 
 	

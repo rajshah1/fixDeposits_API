@@ -1,5 +1,7 @@
 package systems.rajshah.firebase;
 
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
@@ -13,8 +15,8 @@ import com.google.firebase.auth.FirebaseAuth;
 public class FirebaseInitialize {
 
 	@PostConstruct
-	public void initialize() {
-		try {
+	public void initialize() throws IOException {
+	
 			FirebaseOptions options = new FirebaseOptions.Builder()
 					.setCredentials(GoogleCredentials.getApplicationDefault())
 					.setDatabaseUrl("https://infy-rest-data.firebaseio.com/")
@@ -25,9 +27,6 @@ public class FirebaseInitialize {
 		    FirebaseAuth.getInstance(firebaseApp);
 			}
 					
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+		
 	}
 }

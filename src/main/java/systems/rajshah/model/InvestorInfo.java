@@ -4,13 +4,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvestorInfo {
-	public String id;
-	public String firstName;
-	public String middleName;
-	public String lastName;
-	public String familyHead;
-	public String address;
-	public String familyCode;
+	private String id;
+	private String firstName;
+	private String middleName;
+	private String lastName;
+	private String familyHead;
+	private String address;
+	private String familyCode;
 	@Override
 	public String toString() {
 		return "InvestorInfo [id=" + id + ", firstName=" + firstName + ", middleName=" + middleName + ", lastName="

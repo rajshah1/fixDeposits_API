@@ -6,14 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class QueryObjectDetails {
-	public String searchField;
-	public Date initialDate;
-	public Date lastDate;
+	private String searchField;
+	private Date initialDate;
+	private Date lastDate;
 	
 	
 	public QueryObjectDetails() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
@@ -30,25 +29,13 @@ public class QueryObjectDetails {
 	public Date getLastDate() {
 		return lastDate;
 	}
-
-
 	public void setLastDate(Date lastDate) {
 		this.lastDate = lastDate;
 	}
-
-
 	public String getSearchField() {
 		return searchField;
 	}
-
-
 	public void setSearchField(String searchField) {
 		this.searchField = searchField;
 	}
-	
-	
-	
-	
-	
-	
 }

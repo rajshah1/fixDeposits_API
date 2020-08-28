@@ -22,5 +22,5 @@ public List<FullInvestorInfo> getInvestInfoBtDates(QueryObjectDetails queyObject
 public List<FullInvestorInfo> getfullInfoByFamilyCode(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException; 
 public ByteArrayInputStream generateCustomerIntimationReport(String Idvar,QueryObjectDetails queyObject, String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException; 
 public InvestorInfo getFamliyHeadForFamilyCode(String Idvar,String currentId) throws FirebaseAuthException, InterruptedException, ExecutionException; 
-
+public List<ByteArrayInputStream> getCustReportByDates (QueryObjectDetails queyObject,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException;
 }
