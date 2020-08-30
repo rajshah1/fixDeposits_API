@@ -41,8 +41,6 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -54,14 +52,12 @@ import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 @Service
 public class FirebaseUserImpl implements IfirebaseUser{  
 	private static final Logger logger=LoggerFactory.getLogger(FirebaseUserImpl.class);
+	
 	String fdInfoVar="fdInfo";
 	@Override
 	public UserInfo getCurrentUserDetails(String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		UserRecord uInfo=FirebaseAuth.getInstance().getUser(currentUid);
-		//System.out.println("this is UID:"+CurrentLoggedInUserUID);
-	
 		/*
 		 * ONLY RUN <------ONCE------> This code will create alphacounter document in
 		 * {/UID} collection :{a:0,b:0 .........z:0} Map
@@ -74,9 +70,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			 * future=dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter"
 			 * ).set(counts);
 			 * System.out.println("I have seen this"+future.get().getUpdateTime()); }
-			 */ 
-
-		
+			 */
 		ApiFuture<DocumentSnapshot> future=dbFirestore.collection("users").document(uInfo.getEmail()).get();
 		DocumentSnapshot docsnap=future.get();
 		UserInfo userInfo;
@@ -96,7 +90,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		Long currentNumber=(Long)fullCountMap.getData().get(investInfo.getLastName().substring(0, 1).toLowerCase());
 		String idString=investInfo.getFirstName().substring(0,1).toUpperCase()+investInfo.getLastName()
 		.substring(0,1).toUpperCase()+(currentNumber+1);
-		
 		investInfo.setId(idString);
 		ApiFuture<WriteResult> future=dbFirestore.collection(currentUid).document(idString).set(investInfo);
 		future.get();
@@ -223,11 +216,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 					t.add(fdInformation);
 
 				});
-				
-				/*
-				 * for (DocumentSnapshot selectfdInfo:tet) { FdInfo
-				 * fdInformation=selectfdInfo.toObject(FdInfo.class); t.add(fdInformation); }
-				 */
 				te.setInvestor(investInfo);
 				te.setFdInfo(t);
 				fullData.add(te);
@@ -268,7 +256,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
     				doc.close();
     		
     			} catch (DocumentException e) {
-    				// TODO Auto-generated catch block
     				logger.error("Error Occurred --> Context ", e);
     			}
 
@@ -308,20 +295,13 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	String contactInfo="";
     	if(uInfoVal.getMobileNo().length()>12) {
     		String [] splitval=uInfoVal.getMobileNo().split(",");
-			
 			  for(int i=0;i<splitval.length;i++) { if(splitval[i].length()<10) {
 			  contactInfo=contactInfo.concat(" (O) "+splitval[i]); } else {
 			  contactInfo=contactInfo.concat(" (M) "+splitval[i]); } }
-			 
 			  }
-			  
-    	else {
-    	
+    	else
     		contactInfo=contactInfo.concat(uInfoVal.getMobileNo());
-    	}
-    		
-    		
-    	
+
     	Chunk ch1=new Chunk(" "+uInfoVal.getName().toUpperCase());
     	Chunk ch2=new Chunk("\n "+addressLine1);
     	Chunk ch3=new Chunk("\n "+addressLine2);
@@ -336,13 +316,12 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	if(!ch5.isEmpty())
     		p1.add(ch5);
     	p1.add(ch4);
-    	
     	p1.setAlignment(Paragraph.ALIGN_CENTER);
     	p1.setSpacingAfter(20F);
     	doc.add(p1);
     	
     }
-    private static void reciverInfoAddress(Document doc,InvestorInfo toWhom) throws DocumentException{
+    private static void reciverInfoAddress(Document doc, InvestorInfo toWhom) throws DocumentException{
     	logger.trace("Inside reciverInfoAddress"+toWhom.getFirstName());
     	if(toWhom.getAddress().length()>0) {
     	Chunk add7=new Chunk("\n ");
@@ -370,13 +349,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
     		add8.append(toWhom.getAddress().substring(parts,2*parts));
     		add9.append(toWhom.getAddress().substring(2*parts,3*parts));
     	}
-    	
-    		
     	 Chunk ch6=new Chunk(" To,\n "+toWhom.getFamilyCode()+": "
     	+toWhom.getFirstName().toUpperCase()+" "+toWhom.getMiddleName().toUpperCase()
     	+" "+toWhom.getLastName().toUpperCase());
-    	
-    	
     	Paragraph p1=new Paragraph();
     	p1.add(ch6);p1.add(add7);p1.add(add8);
     	if(!add9.isEmpty())
@@ -484,7 +459,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	@Override
 	public InvestorInfo getFamliyHeadForFamilyCode(String idVar, String currentId)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		// TODO Auto-generated method stub
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference collRef=dbFirestore.collection(currentId);
 		List<String> selfValues=new ArrayList<>();
