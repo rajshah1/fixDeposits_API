@@ -19,7 +19,7 @@ on:
 jobs:
   # This workflow contains a single job called "greet"
    sonarcloud:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
       with:
@@ -38,11 +38,13 @@ jobs:
     - name: Create Service Account
       run: |
           ls
-          echo ${{ secrets.GOOGLE_APP_CREDENTIALS }} > ./google-credentials.json
+          echo $GOOGLE_APPLICATION_CREDENTIALS
+          echo GOOGLE_APP_CREDENTIALS > ./google-credentials.json
           ls
-          emv
+          env
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
+        GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
 #     - name: Maven Sonar Push
 #       run: mvn -B package --file pom.xml -X
             
