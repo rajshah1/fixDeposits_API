@@ -34,11 +34,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+#    - name: Sonar Cloud
+#        uses: sonarsource/sonarcloud-github-action@master
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: Maven Sonar Push
       run: |
-        mvn clean install
+        mvn -B package --file pom.xml
         mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar          
-#       uses: sonarsource/sonarcloud-github-action@master
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-#         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
