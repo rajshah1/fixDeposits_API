@@ -39,7 +39,7 @@ jobs:
       run: |
           ls
           echo $GOOGLE_APPLICATION_CREDENTIALS
-          echo GOOGLE_APP_CREDENTIALS > ./google-credentials.json
+          echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
           ls
           env
       env:
