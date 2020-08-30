@@ -45,6 +45,6 @@ jobs:
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
-#     - name: Maven Sonar Push
-#       run: mvn -B package --file pom.xml -X
+    - name: Maven Sonar Push
+      run: mvn -B package --file pom.xml -X
             
