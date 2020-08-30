@@ -21,12 +21,10 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: |
-        ./mvnw surefire:test
         ./mvnw -B package --file pom.xml
-        ls
-        java -version
     - name: Test File structure for .jar File
       run: |
+          ./mvnw surefire:test
           cd ./target
           echo "In the Target"
           ls
