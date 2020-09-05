@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
@@ -53,10 +54,13 @@ import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 public class FirebaseUserImpl implements IfirebaseUser{  
 	private static final Logger logger=LoggerFactory.getLogger(FirebaseUserImpl.class);
 	
+	@Autowired
+	Firestore firestore;
+	
 	String fdInfoVar="fdInfo";
 	@Override
 	public UserInfo getCurrentUserDetails(String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		Firestore dbFirestore = FirestoreClient.getFirestore();
+		//Firestore dbFirestore = FirestoreClient.getFirestore();
 		UserRecord uInfo=FirebaseAuth.getInstance().getUser(currentUid);
 		/*
 		 * ONLY RUN <------ONCE------> This code will create alphacounter document in
@@ -71,7 +75,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			 * ).set(counts);
 			 * System.out.println("I have seen this"+future.get().getUpdateTime()); }
 			 */
-		ApiFuture<DocumentSnapshot> future=dbFirestore.collection("users").document(uInfo.getEmail()).get();
+		ApiFuture<DocumentSnapshot> future=this.firestore.collection("users").document(uInfo.getEmail()).get();
 		DocumentSnapshot docsnap=future.get();
 		UserInfo userInfo;
 		if(docsnap.exists()) {

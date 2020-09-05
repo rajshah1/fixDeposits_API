@@ -1,10 +1,10 @@
 debug: false
-logging:
-  level:
-    root: info
-    systems:
-      rajshah:
-        "*": info
+#logging:
+#  level:
+#    root: debug
+#    systems:
+#      rajshah:
+#        "*": debug
 
 # this will update the /actuator/health to /health
 management:
@@ -13,9 +13,15 @@ management:
       base-path: "/"
 server:
   port: "${PORT:8080}"
+
+file-location: ./google/google-credentails.json
 spring:
+  cloud:    gcp:
+      firestore:        credentials:          location: file:${file-location}
   application:
-    name: "fd-db-info"
+    name: "fd-db-info"        
+  
+  
 
 #eureka.instance.hostname=${DOAIN_NAME:localhost}
 #eureka.client.serviceUrl.defaultZone=${EUREKA_SERVER_URL:http://localhost:8761}/eureka/

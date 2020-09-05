@@ -21,10 +21,16 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: |
+        echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
+        ls
         ./mvnw -B package --file pom.xml
+        #./mvnw surefire:test
+      env:
+        #GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
+        GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
+        #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: Test File structure for .jar File
       run: |
-          ./mvnw surefire:test
           cd ./target
           echo "In the Target"
           ls
