@@ -14,12 +14,12 @@ management:
 server:
   port: "${PORT:8080}"
 
-file-location: ./google/google-credentails.json
 spring:
   cloud:    gcp:
-      firestore:        credentials:          location: file:${file-location}
+      project-id: "infy-rest-data"      credentials:        location: file:/google-credentials.json
   application:
-    name: "fd-db-info"        
+    name: "fd-db-info"
+            
   
   
 

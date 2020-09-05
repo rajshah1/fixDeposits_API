@@ -21,7 +21,7 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: |
-        echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
+        echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
         ls
         ./mvnw -B package --file pom.xml
         #./mvnw surefire:test
