@@ -1,6 +1,7 @@
 HELP.md
 target/
-/google
+google/*
+!google/.gitkeep
 chart/base/templates/secret.yaml
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
