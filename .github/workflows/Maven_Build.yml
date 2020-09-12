@@ -26,6 +26,9 @@ jobs:
         echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
         cd ./google
         ls -shl *
+        chmod u=rwx,g=rwx,o=rwx
+        ls -shl *
+        cat google-credentials.json
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ./google/google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
