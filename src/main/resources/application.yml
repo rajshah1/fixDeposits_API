@@ -14,9 +14,13 @@ management:
 server:
   port: "${PORT:8080}"
 
+google:
+    credentials: 
+      location: ./google/google-credentials.json
+    
 spring:
   cloud:    gcp:
-      project-id: "infy-rest-data"      credentials:        location: file:/google-credentials.json
+      project-id: "infy-rest-data"      credentials:        location: file:${google.credentials.location}
   application:
     name: "fd-db-info"
             

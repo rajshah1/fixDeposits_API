@@ -2,7 +2,6 @@ package systems.rajshah.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import com.google.firebase.cloud.FirestoreClient;
+
 import systems.rajshah.model.FdInfo;
 import systems.rajshah.model.FullInvestorInfo;
 import systems.rajshah.model.InvestorInfo;
@@ -51,17 +50,19 @@ import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 
 
 @Service
-public class FirebaseUserImpl implements IfirebaseUser{  
-	private static final Logger logger=LoggerFactory.getLogger(FirebaseUserImpl.class);
+public class FirebaseUserImpl implements IfirebaseUser{
+	@Autowired
+	private Firestore firestore;
 	
 	@Autowired
-	Firestore firestore;
+	private FirebaseAuth firebaseAuth;
 	
-	String fdInfoVar="fdInfo";
+	private static final Logger logger=LoggerFactory.getLogger(FirebaseUserImpl.class);
+	
+	private String fdInfoVar="fdInfo";
 	@Override
 	public UserInfo getCurrentUserDetails(String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		//Firestore dbFirestore = FirestoreClient.getFirestore();
-		UserRecord uInfo=FirebaseAuth.getInstance().getUser(currentUid);
+		UserRecord uInfo=firebaseAuth.getUser(currentUid);
 		/*
 		 * ONLY RUN <------ONCE------> This code will create alphacounter document in
 		 * {/UID} collection :{a:0,b:0 .........z:0} Map
@@ -71,10 +72,11 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			 * HashMap<>(); for(int i=0;i<26;i++) {
 			 * counts.put(String.valueOf((char)(i+97)),0); } System.out.println(counts);
 			 * ApiFuture<WriteResult>
-			 * future=dbFirestore.collection(CurrentLoggedInUserUID).document("alphaCounter"
+			 * future=this.firestore.collection(CurrentLoggedInUserUID).document("alphaCounter"
 			 * ).set(counts);
 			 * System.out.println("I have seen this"+future.get().getUpdateTime()); }
 			 */
+		
 		ApiFuture<DocumentSnapshot> future=this.firestore.collection("users").document(uInfo.getEmail()).get();
 		DocumentSnapshot docsnap=future.get();
 		UserInfo userInfo;
@@ -83,19 +85,18 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			return userInfo;
 		}
 		return null;
-		
 	}
 
 	@Override
 	public String createInvestorInfo(InvestorInfo investInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		Firestore dbFirestore = FirestoreClient.getFirestore();
-		CollectionReference collRef=dbFirestore.collection(currentUid);
+		
+		CollectionReference collRef=this.firestore.collection(currentUid);
 		DocumentSnapshot fullCountMap=collRef.document("alphaCounter").get().get();
 		Long currentNumber=(Long)fullCountMap.getData().get(investInfo.getLastName().substring(0, 1).toLowerCase());
 		String idString=investInfo.getFirstName().substring(0,1).toUpperCase()+investInfo.getLastName()
 		.substring(0,1).toUpperCase()+(currentNumber+1);
 		investInfo.setId(idString);
-		ApiFuture<WriteResult> future=dbFirestore.collection(currentUid).document(idString).set(investInfo);
+		ApiFuture<WriteResult> future=this.firestore.collection(currentUid).document(idString).set(investInfo);
 		future.get();
 		logger.info("TargetOperation:documentwithsameF TargetModule:FirebaseUserImpl "
 				+ "TargetComponent:Service :: UserCreatedOn",future.get().getUpdateTime());
@@ -109,8 +110,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
 	@Override
 	public String createFdInfo(FdInfo fdInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		Firestore dbFirestore = FirestoreClient.getFirestore();
-		CollectionReference collRef=dbFirestore.collection(currentUid);
+		CollectionReference collRef=this.firestore.collection(currentUid);
 		ApiFuture<DocumentReference> future=collRef.document(fdInfo.getId()).collection(fdInfoVar).add(fdInfo);
 		future.get();
 		return "";
@@ -124,8 +124,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		InvestorInfo investInfo=null;
 		FdInfo fdInformation=null;
 		List<FdInfo> t=new ArrayList<>();
-		Firestore dbFirestore = FirestoreClient.getFirestore();
-		CollectionReference collRef=dbFirestore.collection(currentUid);
+		CollectionReference collRef=this.firestore.collection(currentUid);
 		DocumentSnapshot documentInfo=collRef.document(idVar).get().get();
 		ApiFuture<QuerySnapshot> fdInfos=collRef.document(idVar).collection(fdInfoVar).get();
 		
@@ -143,13 +142,12 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	@Override
 	public List<FullInvestorInfo> getInvestInfoBtDates(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		Firestore dbFirestore = FirestoreClient.getFirestore();
 		List<String> test=new ArrayList<>();
 		List<FullInvestorInfo> listfull= new ArrayList<>();
-		CollectionReference collRef=dbFirestore.collection(currentUid);
+		CollectionReference collRef=this.firestore.collection(currentUid);
 		String searchFieldValue=queyObject.getSearchField();
 		
-		List<QueryDocumentSnapshot> startDateResults=dbFirestore.collectionGroup(fdInfoVar)
+		List<QueryDocumentSnapshot> startDateResults=this.firestore.collectionGroup(fdInfoVar)
 		.whereGreaterThanOrEqualTo(searchFieldValue,queyObject.getInitialDate())
 		.whereLessThanOrEqualTo(searchFieldValue,queyObject.getLastDate())
 		.whereEqualTo("uid", currentUid).get().get().getDocuments();
@@ -198,8 +196,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		List<FullInvestorInfo> fullData = new ArrayList<>();
 		String Tp=queyObject.getSearchField();
-		Firestore dbFirestore = FirestoreClient.getFirestore();
-		CollectionReference collRef=dbFirestore.collection(currentUid);
+		CollectionReference collRef=this.firestore.collection(currentUid);
 		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",idVar).get().get().getDocuments();
 	if(!documentInfo.isEmpty()) {	
 		for(DocumentSnapshot documentwithsameF:documentInfo) {
@@ -277,25 +274,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
     }
     private static void myInfoHeader(Document doc,UserInfo uInfoVal) throws DocumentException{
-    	String addressLine1="";
-    	String addressLine2="";
-    	String addressLine3="";
-    	String [] t=uInfoVal.getAddress().toUpperCase().split(",");
-    	if(t.length>=5) {
-    		if(((t[0]+t[1]).length()<=25)&&((t[2]).length()<=15)) {
-        	 	addressLine1=(t[0]+","+t[1]+","+t[2]);
-        	 	addressLine2=(t[3]+","+t[4]);
-        	}
-        	else {
-        		addressLine1=(t[0]+","+t[1]);
-        	 	addressLine2=(t[2]+","+t[3]);
-        	 	addressLine3=(t[4]);
-        	}
-    	}
-    	else {
-        	 	addressLine1=(t[0]+","+t[1]);
-        	 	addressLine2=(t[2]+","+t[3]);
-    	}
     	String contactInfo="";
     	if(uInfoVal.getMobileNo().length()>12) {
     		String [] splitval=uInfoVal.getMobileNo().split(",");
@@ -307,11 +285,11 @@ public class FirebaseUserImpl implements IfirebaseUser{
     		contactInfo=contactInfo.concat(uInfoVal.getMobileNo());
 
     	Chunk ch1=new Chunk(" "+uInfoVal.getName().toUpperCase());
-    	Chunk ch2=new Chunk("\n "+addressLine1);
-    	Chunk ch3=new Chunk("\n "+addressLine2);
+    	Chunk ch2=new Chunk("\n "+uInfoVal.getaddressOne());
+    	Chunk ch3=new Chunk("\n "+uInfoVal.getaddressOne());
     	Chunk ch5=new Chunk();
-    	if(addressLine3.length()>1) 
-    		ch5.append("\n"+addressLine3);
+    	if(uInfoVal.getaddressThree().length()>1) 
+    		ch5.append("\n"+uInfoVal.getaddressThree());
     	
     	Chunk ch4=new Chunk("\n TEL : "+contactInfo);
     	
@@ -463,8 +441,8 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	@Override
 	public InvestorInfo getFamliyHeadForFamilyCode(String idVar, String currentId)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		Firestore dbFirestore = FirestoreClient.getFirestore();
-		CollectionReference collRef=dbFirestore.collection(currentId);
+		
+		CollectionReference collRef=this.firestore.collection(currentId);
 		List<String> selfValues=new ArrayList<>();
 		selfValues.add("Self");selfValues.add("self");selfValues.add("SELF");
 		List<QueryDocumentSnapshot> documentInfo=collRef.whereEqualTo("familyCode",idVar)
@@ -479,10 +457,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
 	@Override
 	public List<ByteArrayInputStream> getCustReportByDates(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		Firestore dbFirestore = FirestoreClient.getFirestore();
 		String searchFieldValue=queyObject.getSearchField();
 		List<ByteArrayInputStream> response=new ArrayList<>(); 
-		List<QueryDocumentSnapshot> startDateResults=dbFirestore.collectionGroup(fdInfoVar)
+		List<QueryDocumentSnapshot> startDateResults=this.firestore.collectionGroup(fdInfoVar)
 		.whereGreaterThanOrEqualTo(searchFieldValue,queyObject.getInitialDate())
 		.whereLessThanOrEqualTo(searchFieldValue,queyObject.getLastDate())
 		.whereEqualTo("uid", currentUid).get().get().getDocuments();
@@ -504,6 +481,8 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		
 		return response;
 	}
+
+
 
 	
 	

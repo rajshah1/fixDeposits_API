@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,13 +29,12 @@ import systems.rajshah.model.UserInfo;
 import systems.rajshah.service.IfirebaseUser;
 
 @RestController
-
 public class FdprojectRestController {
 	@Autowired(required = false)
 	IfirebaseUser ifirebaseuser;
 	@GetMapping("/")
-	public String greetMessage() {
-		return "***** Welcome To Data CRM System Please Authenticate *****";
+	public ResponseEntity<String> greetMessage() {
+		return new ResponseEntity<String>("***** Welcome To Data CRM System .Please Authenticate *****",HttpStatus.UNAUTHORIZED);
 	}
 	@GetMapping(value="/users/{currentUid}",produces="application/json")
 	public UserInfo getUserInfoByemail(@PathVariable("currentUid") String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
@@ -77,7 +77,7 @@ public class FdprojectRestController {
 		return ifirebaseuser.getFamliyHeadForFamilyCode(idvarable,currentUid);
 	}
 	@GetMapping(value="/{currentUid}/getReportBwtDates")
-	public List<ResponseEntity<InputStreamResource>> getReportBetDates(@PathVariable("currentUid") String currentUid,@RequestBody QueryObjectDetails queryFullDetails) throws FirebaseAuthException, InterruptedException, ExecutionException {
+	public List<ResponseEntity<InputStreamResource>> getReportBwtDates(@PathVariable("currentUid") String currentUid,@RequestBody QueryObjectDetails queryFullDetails) throws FirebaseAuthException, InterruptedException, ExecutionException {
 		List<ByteArrayInputStream> bis= ifirebaseuser.getCustReportByDates(queryFullDetails, currentUid);
 		List<ResponseEntity<InputStreamResource>> repsonse= new ArrayList<>();
 		IntStream.range(0,bis.size()).forEach(e->{
