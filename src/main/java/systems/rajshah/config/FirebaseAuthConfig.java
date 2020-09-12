@@ -26,11 +26,13 @@ public class FirebaseAuthConfig {
 	@Bean
 	public FirebaseAuth FirebaseAuth() throws FileNotFoundException, IOException {
 		logger.info("FirebaseAuth Bean Creation Started :");
-		FirebaseApp.getInstance().delete();
-		GoogleCredentials googleCred=GoogleCredentials.fromStream(new FileInputStream(pathToCredentialsFile));
-		FirebaseOptions options=FirebaseOptions.builder().setCredentials(googleCred).build();
-		FirebaseApp fireApp=FirebaseApp.initializeApp(options);
-		return FirebaseAuth.getInstance(fireApp);
+		if(FirebaseApp.getApps().isEmpty()) {
+			GoogleCredentials googleCred=GoogleCredentials.fromStream(new FileInputStream(pathToCredentialsFile));
+			FirebaseOptions options=FirebaseOptions.builder().setCredentials(googleCred).build();
+			FirebaseApp fireApp=FirebaseApp.initializeApp(options);
+			return FirebaseAuth.getInstance(fireApp);
+		}
+		return FirebaseAuth.getInstance();
 	}
 
 }
