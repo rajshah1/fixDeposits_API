@@ -26,7 +26,7 @@ jobs:
         ./mvnw -B package --file pom.xml
         #./mvnw surefire:test
       env:
-        #GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
+        GOOGLE_APPLICATION_CREDENTIALS: ./google/google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
         #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: Test File structure for .jar File
