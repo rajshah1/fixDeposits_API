@@ -29,7 +29,6 @@ jobs:
         chmod u=rwx,g=rwx,o=rwx google-credentials.json
         mvn -B package --file pom.xml
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: ./google/google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
         #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: bash
