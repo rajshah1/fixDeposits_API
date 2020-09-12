@@ -15,19 +15,22 @@ jobs:
     runs-on: 	windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
+    - name: Java Setup
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Build with Maven
+        architecture: x64
+    - name: Create Service Account
       run: |
-        echo $GOOGLE_APPLICATION_CREDENTIALS
-        echo $GOOGLE_APP_CREDENTIALS
-        #./mvnw -B package --file pom.xml
-        #./mvnw surefire:test
+          ls
+          echo $GOOGLE_APPLICATION_CREDENTIALS
+          echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
+          ls
+          cat ./google-credentials.json
+          mvn -B package --file pom.xml -X
+          env
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: ./google/google-credentials.json
+        GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
-        #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       
