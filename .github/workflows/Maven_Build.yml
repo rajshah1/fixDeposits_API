@@ -24,6 +24,8 @@ jobs:
         ls
         echo GOOGLE_APPLICATION_CREDENTIALS
         echo GOOGLE_APP_CREDENTIALS
+        echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
+        ls
         echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
         cd ./google
         ls
@@ -33,11 +35,5 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS: ./google/google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
         #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    - name: Test File structure for .jar File
-      run: |
-          cd ./target
-          echo "In the Target"
-          ls
-      shell: bash
- 
+
       
