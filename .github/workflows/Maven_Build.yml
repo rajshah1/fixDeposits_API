@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name : Build Project
-    runs-on: 	windows-latest
+    runs-on: linux-latest
     steps:
     - uses: actions/checkout@v2
     - name: Java Setup
@@ -20,17 +20,13 @@ jobs:
       with:
         java-version: 1.8
         architecture: x64
-    - name: Create Service Account
+    - name: Build with Maven
       run: |
-          ls
-          echo $GOOGLE_APPLICATION_CREDENTIALS
-          echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
-          ls
-          cat ./google-credentials.json
-          mvn -B package --file pom.xml -X
-          env
+        ls
+        echo $GOOGLE_APPLICATION_CREDENTIALS
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
+        GOOGLE_APPLICATION_CREDENTIALS: ./google/google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
-
+        #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: bash
       
