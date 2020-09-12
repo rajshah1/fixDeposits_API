@@ -9,8 +9,7 @@ class FirebaseFdprojectApplicationTests {
 	
 	@Test
 	@DisplayName("General Test")
-	void testFirst() {
-		System.out.println("General Test");
+	void contextLoads() {
 	}
 
 }

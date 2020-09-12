@@ -1,14 +1,13 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Build & Test Maven_App
+name: Build & Package Maven_App
 
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   build:
     name : Build Project
@@ -22,15 +21,9 @@ jobs:
         architecture: x64
     - name: Build with Maven
       run: |
-        ls
         echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
-        cd ./google
-        ls -shl *
-        chmod u=rwx,g=rwx,o=rwx google-credentials.json
-        cd ..
         mvn -B package --file pom.xml
       env:
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
-        #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: bash
       
