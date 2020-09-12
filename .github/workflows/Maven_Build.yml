@@ -22,8 +22,8 @@ jobs:
     - name: Build with Maven
       run: |
         ls
-        echo GOOGLE_APPLICATION_CREDENTIALS
-        echo GOOGLE_APP_CREDENTIALS
+        echo $GOOGLE_APPLICATION_CREDENTIALS
+        echo $GOOGLE_APP_CREDENTIALS
         echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
         ls
         echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
