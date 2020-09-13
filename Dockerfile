@@ -3,7 +3,7 @@ MAINTAINER Raj Shah
 RUN mkdir -p /app/source
 COPY . /app/source
 WORKDIR /app/source
-RUN ./mvnw clean package 
+RUN mvn clean package 
 
 FROM openjdk:8-jdk-alpine as final_build
 COPY --from=builder /app/source/target/*.jar app.jar
