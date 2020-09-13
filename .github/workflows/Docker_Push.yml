@@ -28,6 +28,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       #working-directory: ./firebase-fdproject
+    - name: Build  Maven
+      run: |
+        echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
+        #mvn -B package --file pom.xml
+      env:
+        GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
+      shell: bash
     - name: Build and push Docker images
       uses: docker/build-push-action@v1
       with:
