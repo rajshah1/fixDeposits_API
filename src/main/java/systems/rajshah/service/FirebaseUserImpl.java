@@ -89,7 +89,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
 	@Override
 	public String createInvestorInfo(InvestorInfo investInfo,String currentUid) throws FirebaseAuthException, InterruptedException, ExecutionException {
-		
 		CollectionReference collRef=this.firestore.collection(currentUid);
 		DocumentSnapshot fullCountMap=collRef.document("alphaCounter").get().get();
 		Long currentNumber=(Long)fullCountMap.getData().get(investInfo.getLastName().substring(0, 1).toLowerCase());
@@ -139,6 +138,8 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		fullData.setFdInfo(t);
 		return fullData;
 	}
+	
+	
 	@Override
 	public List<FullInvestorInfo> getInvestInfoBtDates(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
@@ -177,7 +178,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 						  }	 
 				}
 				else {
-					 DocumentSnapshot docfuture=collRef.document(currentFdId).get().get();
+					DocumentSnapshot docfuture=collRef.document(currentFdId).get().get();
 					 oneInstance.setInvestor(docfuture.toObject(InvestorInfo.class)); 
 					 fdInformation.add(documentData.toObject(FdInfo.class));
 					 oneInstance.setFdInfo(fdInformation);
@@ -286,7 +287,7 @@ public class FirebaseUserImpl implements IfirebaseUser{
 
     	Chunk ch1=new Chunk(" "+uInfoVal.getName().toUpperCase());
     	Chunk ch2=new Chunk("\n "+uInfoVal.getaddressOne());
-    	Chunk ch3=new Chunk("\n "+uInfoVal.getaddressOne());
+    	Chunk ch3=new Chunk("\n "+uInfoVal.getaddressTwo());
     	Chunk ch5=new Chunk();
     	if(uInfoVal.getaddressThree().length()>1) 
     		ch5.append("\n"+uInfoVal.getaddressThree());
@@ -301,46 +302,47 @@ public class FirebaseUserImpl implements IfirebaseUser{
     	p1.setAlignment(Paragraph.ALIGN_CENTER);
     	p1.setSpacingAfter(20F);
     	doc.add(p1);
-    	
     }
     private static void reciverInfoAddress(Document doc, InvestorInfo toWhom) throws DocumentException{
     	logger.trace("Inside reciverInfoAddress"+toWhom.getFirstName());
     	if(toWhom.getAddress().length()>0) {
-    	Chunk add7=new Chunk("\n ");
-    	Chunk add8=new Chunk("\n ");
-    	Chunk add9=new Chunk("\n ");
-    	Chunk add10=new Chunk("\n ");
-    	
-    	if(toWhom.getAddress().length()>120 && toWhom.getAddress().length()<150) {
-    		add7.append(toWhom.getAddress().substring(0, 40));
-    		add8.append(toWhom.getAddress().substring(40, 75));
-    		add9.append(toWhom.getAddress().substring(75, 110));
-    		add10.append(toWhom.getAddress().substring(110,toWhom.getAddress().length()));
-    	}
-    	else if(toWhom.getAddress().length()<120 && toWhom.getAddress().length()>85) {
-    		add7.append(toWhom.getAddress().substring(0,50));
-    		add8.append(toWhom.getAddress().substring(50,85));
-    		add9.append(toWhom.getAddress().substring(85,toWhom.getAddress().length()));
-    	}
-    	else if (toWhom.getAddress().length()<50) {
-    		add7.append(toWhom.getAddress());
-    	}
-    	else {
-    		int parts=toWhom.getAddress().length()/3;
-    		add7.append(toWhom.getAddress().substring(0,parts));
-    		add8.append(toWhom.getAddress().substring(parts,2*parts));
-    		add9.append(toWhom.getAddress().substring(2*parts,3*parts));
-    	}
-    	 Chunk ch6=new Chunk(" To,\n "+toWhom.getFamilyCode()+": "
-    	+toWhom.getFirstName().toUpperCase()+" "+toWhom.getMiddleName().toUpperCase()
-    	+" "+toWhom.getLastName().toUpperCase());
-    	Paragraph p1=new Paragraph();
-    	p1.add(ch6);p1.add(add7);p1.add(add8);
-    	if(!add9.isEmpty())
-    		p1.add(add9);
-    	p1.setAlignment(Paragraph.ALIGN_LEFT);
-    	p1.setSpacingAfter(20F); 
-    	doc.add(p1); 	
+    		String [] addressSplit =toWhom.getAddress().toUpperCase().split(",");
+        	Chunk add7=new Chunk("\n ");
+        	Chunk add8=new Chunk("\n ");
+        	Chunk add9=new Chunk("\n ");
+        	
+        	if(addressSplit[0].length()+addressSplit[1].length()+addressSplit[2].length()<=36) {
+        		add7.append(addressSplit[0]+","+addressSplit[1]+","+addressSplit[2]);
+        		if(addressSplit.length==4) {
+        			add8.append(addressSplit[3]);}
+        		else if(addressSplit.length==5)
+        			add8.append(addressSplit[3]+","+addressSplit[4]);
+        		else if(addressSplit.length==6) {
+        			add8.append(addressSplit[3]+","+addressSplit[4]);
+        			add9.append(addressSplit[5]);
+        		}
+        			
+        	}else if(addressSplit[0].length()+addressSplit[1].length()+addressSplit[2].length()>36) {
+        		add7.append(addressSplit[0]+","+addressSplit[1]);
+        		add8.append(addressSplit[2]+","+addressSplit[3]);
+        		if(addressSplit.length==5)
+        			add9.append(addressSplit[4]);
+        		else if(addressSplit.length==6)
+        			add9.append(addressSplit[4]+","+addressSplit[5]);
+        	}
+        	Chunk ch5=new Chunk(" To,");
+        	Chunk ch6=new Chunk("\n "+toWhom.getFamilyCode()+": "
+        	+toWhom.getFirstName().toUpperCase()+" "+toWhom.getMiddleName().toUpperCase()
+        	+" "+toWhom.getLastName().toUpperCase());
+        	
+        	
+        	Paragraph p1=new Paragraph();
+        	p1.add(ch5);p1.add(ch6);p1.add(add7);p1.add(add8);
+        	if(!add9.isEmpty())
+        		p1.add(add9);
+        	p1.setAlignment(Paragraph.ALIGN_LEFT);
+        	p1.setSpacingAfter(20F); 
+        	doc.add(p1); 	
     	
     	}
     }
@@ -465,9 +467,9 @@ public class FirebaseUserImpl implements IfirebaseUser{
 		.whereEqualTo("uid", currentUid).get().get().getDocuments();
 		
 		startDateResults.parallelStream().forEach(e->{
-			String id=e.getString("familyCode");
-			logger.info("ID::"+id);
 				try {
+					String id=this.firestore.collection(currentUid).document(e.getString("id")).get().get().getString("familyCode");
+					logger.info("falmily Code for which generate Report "+id);
 					ByteArrayInputStream bis = this.generateCustomerIntimationReport(id,queyObject,currentUid);
 					response.add(bis);
 				} catch (FirebaseAuthException | ExecutionException | DocumentException e1) {
@@ -478,7 +480,6 @@ public class FirebaseUserImpl implements IfirebaseUser{
 					Thread.currentThread().interrupt();
 				}
 		});
-		
 		return response;
 	}
 
