@@ -32,9 +32,9 @@ jobs:
         architecture: x64
     - name: Create ServiceAccount & Test
       run: |
-           echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
+           echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
            mvn surefire:test
-           #mvn clean verify sonar:sonar 
+           mvn clean verify sonar:sonar 
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ./google-credentials.json
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}

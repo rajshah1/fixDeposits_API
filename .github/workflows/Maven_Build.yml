@@ -1,13 +1,13 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Build & Package Maven_App
+name: Build App and Slack Connection
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master,test,stage ]
   pull_request:
-    branches: [ master ]
+    branches: [ master,test,stage ]
 jobs:
   build:
     name : Build Project
@@ -26,4 +26,22 @@ jobs:
       env:
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
       shell: bash
+  slack:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    # Current time for persitent
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+    # this is for slack channel connectivity
+    - name: Notify slack
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.BOT_TOKEN_KEY }} 
+        #run: echo "$CurrentValue and $NameOfApplication $GIT_ACTOR"
+      uses: pullreminders/slack-action@master
+      with:
+        args: '{\"channel\":\"CT39SRCN7\",\"text\":\"PULL/PUSH ON : REPO - ${{github.repository}} BY ${{github.actor}} AT ${{steps.date.outputs.date}}\"}'
+      
       
