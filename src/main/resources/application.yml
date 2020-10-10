@@ -1,10 +1,10 @@
 debug: false
-#logging:
-#  level:
-#    root: debug
-#    systems:
-#      rajshah:
-#        "*": debug
+logging:
+  level:
+    root: info
+    systems:
+      rajshah:
+        "*": debug
 
 # this will update the /actuator/health to /health
 management:

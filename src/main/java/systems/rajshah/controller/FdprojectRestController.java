@@ -107,5 +107,16 @@ public class FdprojectRestController {
 		return ResponseEntity.ok(responseMap);
 
 	}
-
+	
+	@GetMapping(value="/{currentUid}/PrintMultiReportPDF")
+	public ResponseEntity<InputStreamResource> printMultiReportPDF(
+			@RequestBody QueryObjectDetails queryFullDetails, @PathVariable("currentUid") String currentUid)
+			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
+		ByteArrayInputStream bis = ifirebaseuser.generateFullClientReport(queryFullDetails, currentUid);
+		HttpHeaders headers = new HttpHeaders();
+		
+		headers.add("Content-Disposition", "inline; filename=" + "FullCustReport" + ".pdf");
+		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF)
+				.body(new InputStreamResource(bis));
+	}
 }

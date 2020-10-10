@@ -44,6 +44,7 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -489,8 +490,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 	 * @param queyObjectDetails SearchType , startDate and endDate For Search Query.
 	 * @param currentUserId     Current User's 32-Char AlphaNumeric ID.
 	 * 
-	 * @return Map with Customer Report Metadata.
-	 * @exception FirebaseAuthException
+	 * @return Map with Customer Report Metadata. d FirebaseAuthException
 	 * 
 	 * 
 	 */
@@ -513,14 +513,14 @@ public class FirebaseUserImpl implements IfirebaseUser {
 						localInvestInfo = custInfoForId.toObject(InvestorInfo.class);
 					String familyCodeInvestorInfo = localInvestInfo.getFamilyCode();
 					ReportGenObject reportGeneratorObject = new ReportGenObject();
-					System.out.println(reportGeneratorObj.keySet() + " - " + familyCodeInvestorInfo);
+					// System.out.println(reportGeneratorObj.keySet() + " - " +
+					// familyCodeInvestorInfo);
 					if (reportGeneratorObj.containsKey(familyCodeInvestorInfo)) {
 						reportGeneratorObject = reportGeneratorObj.get(familyCodeInvestorInfo);
+						FdinfoObject.setUsername(localInvestInfo.getFirstName() + " " + localInvestInfo.getLastName());
 						reportGeneratorObject.getFdInfo().add(FdinfoObject);
-						System.out.println("Latest" + reportGeneratorObject);
-						System.out.println();
 						reportGeneratorObj.replace(familyCodeInvestorInfo, reportGeneratorObject);
-
+						logger.trace("Replaced reportGeneratorObject Details : {}", reportGeneratorObject);
 					} else {
 						if (localInvestInfo.getFamilyHead().equalsIgnoreCase("self")) {
 							reportGeneratorObject.setFamilyHeadAddress(localInvestInfo.getAddress());
@@ -541,16 +541,135 @@ public class FirebaseUserImpl implements IfirebaseUser {
 					}
 
 				} catch (InterruptedException e1) {
-					logger.error("InterruptedException Occurred : " + "Operations: generateCustomerIntimationReport",
+					logger.error(
+							"InterruptedException Occurred : " + "Operations: generateCustomerIntimationReport  : {}",
 							e1);
 					Thread.currentThread().interrupt();
 				} catch (ExecutionException e2) {
-					logger.error("ExecutionException Occurred : " + "Operations: generateCustomerIntimationReport", e2);
+					logger.error(
+							"ExecutionException Occurred : " + "Operations: generateCustomerIntimationReport  : {}",
+							e2);
 				}
 			});
 
 		}
 		Optional.ofNullable(reportGeneratorObj).orElseThrow(NullPointerException::new);
 		return reportGeneratorObj;
+	}
+
+	@Override
+	public ByteArrayInputStream generateFullClientReport(QueryObjectDetails queyObject, String currentUid)
+			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
+		Map<String, ReportGenObject> reportMetaData = getReportJSONService(queyObject, currentUid);
+		Optional.ofNullable(reportMetaData).orElseThrow(NullPointerException::new);
+		Document doc = new Document(PageSize.A4,10,10,5,5);
+		//doc.setMargins(10, 10, 0, 0);
+
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		UserInfo uInfo = getCurrentUserDetails(currentUid);
+		PdfWriter.getInstance(doc, bout);
+		doc.open();
+		reportMetaData.values().stream().forEach(e -> {
+			doc.newPage();
+			addMetadata(doc, uInfo.getName());
+			try {
+				myInfoHeader(doc, uInfo);
+				custAddressDocPersist(doc, e.getFamilyHeadName(), e.getFamilyHeadAddress());
+				generalInfoWidrowal(doc, queyObject);
+				PdfPTable table = new PdfPTable(6);
+				table.setWidthPercentage(90);
+				table.setSpacingBefore(5f);
+				float[] columnWidths = { 1f, 3f, 4f, 3f, 3f, 4f };
+				table.setWidths(columnWidths);
+				PdfPTable table1 = tablegenerator(table);
+				persistJSONMetadataToTable(doc, table1, e.getFdInfo());
+				footerCustInmp(doc);
+			} catch (DocumentException e1) {
+				// TODO Auto-generated catch block
+				logger.error("DocumentException Occurred : {}", e1);
+			}
+
+		});
+		doc.close();
+		return new ByteArrayInputStream(bout.toByteArray());
+	}
+
+	private static void custAddressDocPersist(Document doc, String familyHead, String headAddress)
+			throws DocumentException {
+		if (headAddress.length() > 0) {
+			String[] addressSplit = headAddress.toUpperCase().split(",");
+			Chunk add7 = new Chunk("\n ");
+			Chunk add8 = new Chunk("\n ");
+			Chunk add9 = new Chunk("\n ");
+
+			if (addressSplit[0].length() + addressSplit[1].length() + addressSplit[2].length() <= 36) {
+				add7.append(addressSplit[0] + "," + addressSplit[1] + "," + addressSplit[2]);
+				if (addressSplit.length == 4) {
+					add8.append(addressSplit[3]);
+				} else if (addressSplit.length == 5)
+					add8.append(addressSplit[3] + "," + addressSplit[4]);
+				else if (addressSplit.length == 6) {
+					add8.append(addressSplit[3] + "," + addressSplit[4]);
+					add9.append(addressSplit[5]);
+				}
+
+			} else if (addressSplit[0].length() + addressSplit[1].length() + addressSplit[2].length() > 36) {
+				add7.append(addressSplit[0] + "," + addressSplit[1]);
+				add8.append(addressSplit[2] + "," + addressSplit[3]);
+				if (addressSplit.length == 5)
+					add9.append(addressSplit[4]);
+				else if (addressSplit.length == 6)
+					add9.append(addressSplit[4] + "," + addressSplit[5]);
+			}
+			// Chunk ch5 = new Chunk(" To,");
+			Chunk ch6 = new Chunk(" To, \n " + familyHead.toUpperCase());
+
+			Paragraph p1 = new Paragraph();
+			// p1.add(ch5);
+			p1.add(ch6);
+			p1.add(add7);
+			p1.add(add8);
+			if (!add9.isEmpty())
+				p1.add(add9);
+			p1.setAlignment(Paragraph.ALIGN_LEFT);
+			p1.setSpacingAfter(20F);
+			doc.add(p1);
+		}
+
+	}
+static int fdInfoListCounterVal=0;
+	private static void persistJSONMetadataToTable(Document doc, PdfPTable table, List<FdInfo> dataList)
+			throws DocumentException {
+		dataList.parallelStream().forEach(e -> {
+			SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
+			String matuDate = sm.format(e.getMaturityDate());
+			String strDate = sm.format(e.getStartDate());
+			PdfPCell matudepoCell = new PdfPCell(new Phrase(matuDate + "\n \n" + strDate));
+
+			PdfPCell investoreNameCell = new PdfPCell(new Phrase(e.getUsername().toUpperCase()));
+			PdfPCell fdCompanyCell = new PdfPCell(new Phrase(e.getComapnyName()));
+			PdfPCell matudepoAmmCell = new PdfPCell(new Phrase(e.getAmount() + "\n \n" + e.getMaturatyAmount()));
+			PdfPCell certiCell = new PdfPCell(new Phrase(e.getCertificateNo()));
+
+			matudepoCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+			matudepoCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+			investoreNameCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+			investoreNameCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+			fdCompanyCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+			fdCompanyCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+			matudepoAmmCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+			matudepoAmmCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+			certiCell.setVerticalAlignment(Phrase.ALIGN_CENTER);
+			certiCell.setHorizontalAlignment(Phrase.ALIGN_CENTER);
+			table.addCell("" + (++fdInfoListCounterVal));
+			table.addCell(matudepoCell);
+			table.addCell(investoreNameCell);
+			table.addCell(fdCompanyCell);
+			table.addCell(matudepoAmmCell);
+			table.addCell(certiCell);
+		});
+		fdInfoListCounterVal = 0;
+		table.setSpacingAfter(20F);
+		doc.add(table);
 	}
 }

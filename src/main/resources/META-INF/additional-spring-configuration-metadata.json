@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "google.credentials.location",
+  "type": "java.lang.String",
+  "description": "A description for 'google.credentials.location'"
+}]}

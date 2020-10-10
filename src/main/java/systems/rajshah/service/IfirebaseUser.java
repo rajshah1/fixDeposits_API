@@ -43,4 +43,7 @@ public interface IfirebaseUser {
 
 	public Map<String, ReportGenObject> getReportJSONService(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException;
+
+	public ByteArrayInputStream generateFullClientReport(QueryObjectDetails queyObject, String currentUid)
+			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException;
 }
