@@ -5,9 +5,9 @@ name: Build App and Slack Connection
 
 on:
   push:
-    branches: [ master,test,stage ]
+    branches: [ master,test,staging ]
   pull_request:
-    branches: [ master,test,stage ]
+    branches: [ master,test,staging ]
 jobs:
   build:
     name : Build Project
