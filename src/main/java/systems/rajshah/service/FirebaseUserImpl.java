@@ -503,6 +503,11 @@ public class FirebaseUserImpl implements IfirebaseUser {
 				.whereGreaterThanOrEqualTo(searchField, queyObject.getInitialDate())
 				.whereLessThanOrEqualTo(searchField, queyObject.getLastDate()).whereEqualTo("uid", currentUid).get()
 				.get().toObjects(FdInfo.class);
+		/*
+		 * Map<String,List<FdInfo>>
+		 * printMap=listOfFDinfos.stream().collect(Collectors.groupingBy(FdInfo::getId))
+		 * ; logger.debug("PrintMap is : {}", printMap);
+		 */
 		if (!listOfFDinfos.isEmpty()) {
 			listOfFDinfos.stream().forEach(FdinfoObject -> {
 				String custId = FdinfoObject.getId();
@@ -557,6 +562,18 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		return reportGeneratorObj;
 	}
 
+	/**
+	 * Generates Single PDF Containing All Client's Maturity Report.<br/>
+	 * Report is evaluated based on Input Date Range for Given Customer UID.
+	 * <br/>
+	 * 
+	 * @implNote This is Fundamental System Requirement And Business Critical API.
+	 * 
+	 * @param queyObjectDetails SearchType , startDate and endDate For Search Query.
+	 * @param currentUserId   Current User's 32-Char AlphaNumeric ID.
+	 * 
+	 * @return ByteArrayInputStream Containing PDF in Byte Format.
+	 */
 	@Override
 	public ByteArrayInputStream generateFullClientReport(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
