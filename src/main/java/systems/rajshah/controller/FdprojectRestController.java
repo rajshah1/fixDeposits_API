@@ -1,10 +1,13 @@
 package systems.rajshah.controller;
 
 import java.io.ByteArrayInputStream;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -26,12 +29,16 @@ import systems.rajshah.model.InvestorInfo;
 import systems.rajshah.model.QueryObjectDetails;
 import systems.rajshah.model.ReportGenObject;
 import systems.rajshah.model.UserInfo;
+
 import systems.rajshah.service.IfirebaseUser;
 
 @RestController
 public class FdprojectRestController {
 	@Autowired(required = false)
 	IfirebaseUser ifirebaseuser;
+	
+	private static final Logger logger = LoggerFactory.getLogger(FdprojectRestController.class);
+
 
 	@GetMapping("/")
 	public ResponseEntity<String> greetMessage() {
@@ -108,14 +115,24 @@ public class FdprojectRestController {
 
 	}
 	
-	@GetMapping(value="/{currentUid}/PrintMultiReportPDF")
+	@PostMapping(value="/{currentUid}/PrintMultiReportPDF")
 	public ResponseEntity<InputStreamResource> printMultiReportPDF(
 			@RequestBody QueryObjectDetails queryFullDetails, @PathVariable("currentUid") String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
+		
 		ByteArrayInputStream bis = ifirebaseuser.generateFullClientReport(queryFullDetails, currentUid);
 		HttpHeaders headers = new HttpHeaders();
 		
-		headers.add("Content-Disposition", "inline; filename=" + "FullCustReport" + ".pdf");
+		// Dates are Converted to Calender as getYear() and getMonth() Methods are deprecated
+		Calendar calInitailDate =Calendar.getInstance();
+		calInitailDate.setTime(queryFullDetails.getInitialDate());
+		Calendar calLastDate =Calendar.getInstance();
+		calLastDate.setTime(queryFullDetails.getLastDate());
+		
+	
+		String filenameAppender=queryFullDetails.getSearchField().substring(0,1)+(calInitailDate.get(Calendar.MONTH)+1)+(calInitailDate.get(Calendar.YEAR)%100)
+				+(calLastDate.get(Calendar.MONTH)+1)+(calLastDate.get(Calendar.YEAR)%100);
+		headers.add("Content-Disposition", "inline; filename=" + "FullCustReport"+filenameAppender);
 		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF)
 				.body(new InputStreamResource(bis));
 	}

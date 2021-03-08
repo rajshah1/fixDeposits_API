@@ -2,9 +2,8 @@ package systems.rajshah.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -363,13 +362,20 @@ public class FirebaseUserImpl implements IfirebaseUser {
 	}
 
 	private static void generalInfoWidrowal(Document doc, QueryObjectDetails queyObject) throws DocumentException {
-		SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(queyObject.getInitialDate());
+		Calendar cal1 = Calendar.getInstance();
+		cal1.setTime(queyObject.getLastDate());
+
+		String dateformator = cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH) + 1) + "/"
+				+ cal.get(Calendar.YEAR);
+		String dateformatorldast = cal1.get(Calendar.DAY_OF_MONTH) + "/" + (cal1.get(Calendar.MONTH) + 1) + "/"
+				+ cal1.get(Calendar.YEAR);
 		Chunk ch10 = new Chunk("\n \n Dear Sir/Madam,");
 		Chunk ch11 = new Chunk(
 				"\n \t \t \t \t \t \t \t \t \t \t \t \t Following FDR are matured on below mentioned dates .So, Kindly Contact us.");
 		Chunk ch12 = new Chunk("\n \n \t \t \t \t \t \t \t \t \t \t \t \t MATURITY FOR THE PERIOD : ");
-		Chunk ch13 = new Chunk(
-				"\t \t" + sm.format(queyObject.getInitialDate()) + " TO " + sm.format(queyObject.getLastDate()));
+		Chunk ch13 = new Chunk("\t \t" + dateformator + " TO " + dateformatorldast);
 
 		Paragraph p1 = new Paragraph();
 		p1.add(ch10);
@@ -406,9 +412,16 @@ public class FirebaseUserImpl implements IfirebaseUser {
 
 		IntStream.range(0, dataList.size()).parallel().forEach(e -> {
 			IntStream.range(0, dataList.get(e).getFdInfo().size()).parallel().forEach(i -> {
-				SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
-				String matuDate = sm.format(dataList.get(e).getFdInfo().get(i).getMaturityDate());
-				String strDate = sm.format(dataList.get(e).getFdInfo().get(i).getStartDate());
+				Calendar machCal = Calendar.getInstance();
+				machCal.setTime(dataList.get(e).getFdInfo().get(i).getStartDate());
+				Calendar lastCal = Calendar.getInstance();
+				lastCal.setTime(dataList.get(e).getFdInfo().get(i).getMaturityDate());
+
+				String matuDate = machCal.get(Calendar.DAY_OF_MONTH) + "/" + (machCal.get(Calendar.MONTH) + 1) + "/"
+						+ machCal.get(Calendar.YEAR);
+				String strDate = lastCal.get(Calendar.DAY_OF_MONTH) + "/" + (lastCal.get(Calendar.MONTH) + 1) + "/"
+						+ lastCal.get(Calendar.YEAR);
+
 				PdfPCell matudepoCell = new PdfPCell(new Phrase(matuDate + "\n \n" + strDate));
 				PdfPCell investoreNameCell = new PdfPCell(new Phrase(dataList.get(e).getInvestor().getFirstName() + " "
 						+ dataList.get(e).getInvestor().getLastName()));
@@ -490,7 +503,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 	 * @param queyObjectDetails SearchType , startDate and endDate For Search Query.
 	 * @param currentUserId     Current User's 32-Char AlphaNumeric ID.
 	 * 
-	 * @return Map with Customer Report Metadata. d FirebaseAuthException
+	 * @return Map with Customer Report Metadata. FirebaseAuthException
 	 * 
 	 * 
 	 */
@@ -557,6 +570,8 @@ public class FirebaseUserImpl implements IfirebaseUser {
 				}
 			});
 
+		} else {
+			reportGeneratorObj.put("NO Inputs", null);
 		}
 		Optional.ofNullable(reportGeneratorObj).orElseThrow(NullPointerException::new);
 		return reportGeneratorObj;
@@ -564,51 +579,61 @@ public class FirebaseUserImpl implements IfirebaseUser {
 
 	/**
 	 * Generates Single PDF Containing All Client's Maturity Report.<br/>
-	 * Report is evaluated based on Input Date Range for Given Customer UID.
-	 * <br/>
+	 * Report is evaluated based on Input Date Range for Given Customer UID. <br/>
 	 * 
 	 * @implNote This is Fundamental System Requirement And Business Critical API.
 	 * 
 	 * @param queyObjectDetails SearchType , startDate and endDate For Search Query.
-	 * @param currentUserId   Current User's 32-Char AlphaNumeric ID.
+	 * @param currentUserId     Current User's 32-Char AlphaNumeric ID.
 	 * 
 	 * @return ByteArrayInputStream Containing PDF in Byte Format.
 	 */
 	@Override
 	public ByteArrayInputStream generateFullClientReport(QueryObjectDetails queyObject, String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
+		// logger.debug("In generateFullClientReport QueryObject : {}",
+		// queyObject.toString());
 		Map<String, ReportGenObject> reportMetaData = getReportJSONService(queyObject, currentUid);
-		Optional.ofNullable(reportMetaData).orElseThrow(NullPointerException::new);
-		Document doc = new Document(PageSize.A4,10,10,5,5);
-		//doc.setMargins(10, 10, 0, 0);
 
+		// logger.debug("In generateFullClientReport reportMetadata : {}",
+		// reportMetaData);
+		Document doc = new Document(PageSize.A4, 10, 10, 5, 5);
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		UserInfo uInfo = getCurrentUserDetails(currentUid);
 		PdfWriter.getInstance(doc, bout);
 		doc.open();
-		reportMetaData.values().stream().forEach(e -> {
-			doc.newPage();
-			addMetadata(doc, uInfo.getName());
-			try {
-				myInfoHeader(doc, uInfo);
-				custAddressDocPersist(doc, e.getFamilyHeadName(), e.getFamilyHeadAddress());
-				generalInfoWidrowal(doc, queyObject);
-				PdfPTable table = new PdfPTable(6);
-				table.setWidthPercentage(90);
-				table.setSpacingBefore(5f);
-				float[] columnWidths = { 1f, 3f, 4f, 3f, 3f, 4f };
-				table.setWidths(columnWidths);
-				PdfPTable table1 = tablegenerator(table);
-				persistJSONMetadataToTable(doc, table1, e.getFdInfo());
-				footerCustInmp(doc);
-			} catch (DocumentException e1) {
-				// TODO Auto-generated catch block
-				logger.error("DocumentException Occurred : {}", e1);
-			}
 
-		});
-		doc.close();
-		return new ByteArrayInputStream(bout.toByteArray());
+		if (reportMetaData.size() == 1 && reportMetaData.containsKey("NO Inputs")) {
+			addMetadata(doc, uInfo.getName());
+			myInfoHeader(doc, uInfo);
+			doc.add(new Chunk(" \n \n No Data Found For Given Dates . Please Try other Dates"));
+			doc.close();
+			return new ByteArrayInputStream(bout.toByteArray());
+		} else {
+			reportMetaData.values().stream().forEach(e -> {
+				doc.newPage();
+				addMetadata(doc, uInfo.getName());
+				try {
+					myInfoHeader(doc, uInfo);
+					custAddressDocPersist(doc, e.getFamilyHeadName(), e.getFamilyHeadAddress());
+					generalInfoWidrowal(doc, queyObject);
+					PdfPTable table = new PdfPTable(6);
+					table.setWidthPercentage(90);
+					table.setSpacingBefore(5f);
+					float[] columnWidths = { 1f, 3f, 4f, 3f, 3f, 4f };
+					table.setWidths(columnWidths);
+					PdfPTable table1 = tablegenerator(table);
+					persistJSONMetadataToTable(doc, table1, e.getFdInfo());
+					footerCustInmp(doc);
+				} catch (DocumentException e1) {
+					// TODO Auto-generated catch block
+					logger.error("DocumentException Occurred : {}", e1);
+				}
+
+			});
+			doc.close();
+			return new ByteArrayInputStream(bout.toByteArray());
+		}
 	}
 
 	private static void custAddressDocPersist(Document doc, String familyHead, String headAddress)
@@ -654,14 +679,24 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		}
 
 	}
-static int fdInfoListCounterVal=0;
+
+	static int fdInfoListCounterVal = 0;
+
 	private static void persistJSONMetadataToTable(Document doc, PdfPTable table, List<FdInfo> dataList)
 			throws DocumentException {
 		dataList.parallelStream().forEach(e -> {
-			SimpleDateFormat sm = new SimpleDateFormat("dd-mm-yyyy");
-			String matuDate = sm.format(e.getMaturityDate());
-			String strDate = sm.format(e.getStartDate());
-			PdfPCell matudepoCell = new PdfPCell(new Phrase(matuDate + "\n \n" + strDate));
+
+			Calendar machCal = Calendar.getInstance();
+			machCal.setTime(e.getStartDate());
+			Calendar lastCal = Calendar.getInstance();
+			lastCal.setTime(e.getMaturityDate());
+
+			String matuDate = machCal.get(Calendar.DAY_OF_MONTH) + "/" + (machCal.get(Calendar.MONTH) + 1) + "/"
+					+ machCal.get(Calendar.YEAR);
+			String strDate = lastCal.get(Calendar.DAY_OF_MONTH) + "/" + (lastCal.get(Calendar.MONTH) + 1) + "/"
+					+ lastCal.get(Calendar.YEAR);
+
+			PdfPCell matudepoCell = new PdfPCell(new Phrase(strDate + "\n \n" + matuDate));
 
 			PdfPCell investoreNameCell = new PdfPCell(new Phrase(e.getUsername().toUpperCase()));
 			PdfPCell fdCompanyCell = new PdfPCell(new Phrase(e.getComapnyName()));

@@ -38,4 +38,13 @@ public class QueryObjectDetails {
 	public void setSearchField(String searchField) {
 		this.searchField = searchField;
 	}
+
+
+	@Override
+	public String toString() {
+		return "QueryObjectDetails [searchField=" + searchField + ", initialDate=" + initialDate + ", lastDate="
+				+ lastDate + "]";
+	}
+	
+	
 }
