@@ -71,6 +71,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 	@Override
 	public UserInfo getCurrentUserDetails(String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
+		logger.debug("In getCurrentUserDetails {}", currentUid);
 		UserRecord uInfo = firebaseAuth.getUser(currentUid);
 		/*
 		 * ONLY RUN <------ONCE------> This code will create alphacounter document in
@@ -241,6 +242,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 			String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException, DocumentException {
 		// from currentID find User Details
+		//System.out.println("In generateCustomerIntimationReport"+currentUid);
 		UserInfo uInfo = this.getCurrentUserDetails(currentUid);
 		InvestorInfo familyheadaddressName = this.getFamliyHeadForFamilyCode(idVar, currentUid);
 		Document doc = new Document();
