@@ -71,7 +71,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 	@Override
 	public UserInfo getCurrentUserDetails(String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
-		logger.debug("In getCurrentUserDetails {}", currentUid);
+		//logger.debug("In getCurrentUserDetails {}", currentUid);
 		UserRecord uInfo = firebaseAuth.getUser(currentUid);
 		/*
 		 * ONLY RUN <------ONCE------> This code will create alphacounter document in
@@ -275,7 +275,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 
 	}
 
-	private static void addMetadata(Document doc, String currentUserName) {
+	public static void addMetadata(Document doc, String currentUserName) {
 		doc.addCreationDate();
 		doc.addCreator(currentUserName);
 		doc.addAuthor("rajshah.systems");
@@ -283,7 +283,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 
 	}
 
-	private static void myInfoHeader(Document doc, UserInfo uInfoVal) throws DocumentException {
+	public static void myInfoHeader(Document doc, UserInfo uInfoVal) throws DocumentException {
 		String contactInfo = "";
 		if (uInfoVal.getMobileNo().length() > 12) {
 			String[] splitval = uInfoVal.getMobileNo().split(",");
@@ -318,7 +318,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		doc.add(p1);
 	}
 
-	private static void reciverInfoAddress(Document doc, InvestorInfo toWhom) throws DocumentException {
+	public static void reciverInfoAddress(Document doc, InvestorInfo toWhom) throws DocumentException {
 		logger.trace("Inside reciverInfoAddress" + toWhom.getFirstName());
 		if (toWhom.getAddress().length() > 0) {
 			String[] addressSplit = toWhom.getAddress().toUpperCase().split(",");
@@ -363,7 +363,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		}
 	}
 
-	private static void generalInfoWidrowal(Document doc, QueryObjectDetails queyObject) throws DocumentException {
+	public static void generalInfoWidrowal(Document doc, QueryObjectDetails queyObject) throws DocumentException {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(queyObject.getInitialDate());
 		Calendar cal1 = Calendar.getInstance();
@@ -390,7 +390,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		doc.add(line);
 	}
 
-	private static PdfPTable tablegenerator(PdfPTable table) {
+	public static PdfPTable tablegenerator(PdfPTable table) {
 
 		Stream.of("SR", " MATU.DATE \n DEPO.DATE", "INVESTOR NAME", "COMPANY NAME", " DEPO. AMT \n MATU. AMT",
 				"CERTIFICTE NO.").forEach(e -> {
@@ -583,7 +583,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 	 * Generates Single PDF Containing All Client's Maturity Report.<br/>
 	 * Report is evaluated based on Input Date Range for Given Customer UID. <br/>
 	 * 
-	 * @implNote This is Fundamental System Requirement And Business Critical API.
+	 * @implNote This is Fundamental System Requirement And Business Critical API Function.
 	 * 
 	 * @param queyObjectDetails SearchType , startDate and endDate For Search Query.
 	 * @param currentUserId     Current User's 32-Char AlphaNumeric ID.
@@ -597,8 +597,8 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		// queyObject.toString());
 		Map<String, ReportGenObject> reportMetaData = getReportJSONService(queyObject, currentUid);
 
-		// logger.debug("In generateFullClientReport reportMetadata : {}",
-		// reportMetaData);
+		 logger.debug("In generateFullClientReport reportMetadata : {}",
+		 reportMetaData);
 		Document doc = new Document(PageSize.A4, 10, 10, 5, 5);
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		UserInfo uInfo = getCurrentUserDetails(currentUid);
@@ -684,7 +684,7 @@ public class FirebaseUserImpl implements IfirebaseUser {
 
 	static int fdInfoListCounterVal = 0;
 
-	private static void persistJSONMetadataToTable(Document doc, PdfPTable table, List<FdInfo> dataList)
+	public static void persistJSONMetadataToTable(Document doc, PdfPTable table, List<FdInfo> dataList)
 			throws DocumentException {
 		dataList.parallelStream().forEach(e -> {
 
