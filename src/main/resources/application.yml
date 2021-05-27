@@ -11,6 +11,11 @@ management:
   endpoints:
     web:
       base-path: "/"
+      
+springdoc:  api-docs:    path: "/dev/openAPI"
+  swagger-ui:
+    operations-sorter: method
+    path: "/openAPI.html"  
 server:
   port: "${PORT:8080}"
 

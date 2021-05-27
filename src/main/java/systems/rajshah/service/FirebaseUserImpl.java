@@ -77,16 +77,16 @@ public class FirebaseUserImpl implements IfirebaseUser {
 		 * ONLY RUN <------ONCE------> This code will create alphacounter document in
 		 * {/UID} collection :{a:0,b:0 .........z:0} Map
 		 */
+		
 		/*
-		 * if(CurrentLoggedInUserUID!= null) { Map<String,Integer> counts = new
-		 * HashMap<>(); for(int i=0;i<26;i++) {
-		 * counts.put(String.valueOf((char)(i+97)),0); } System.out.println(counts);
-		 * ApiFuture<WriteResult>
-		 * future=this.firestore.collection(CurrentLoggedInUserUID).document(
-		 * "alphaCounter" ).set(counts);
+		 * if(currentUid!= null) { Map<String,Integer> counts = new HashMap<>(); for(int
+		 * i=0;i<26;i++) { counts.put(String.valueOf((char)(i+97)),0); }
+		 * System.out.println(counts); ApiFuture<WriteResult>
+		 * future=this.firestore.collection(currentUid).document( "alphaCounter"
+		 * ).set(counts);
 		 * System.out.println("I have seen this"+future.get().getUpdateTime()); }
+		 * 
 		 */
-
 		ApiFuture<DocumentSnapshot> future = this.firestore.collection("users").document(uInfo.getEmail()).get();
 		DocumentSnapshot docsnap = future.get();
 		UserInfo userInfo;

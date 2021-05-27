@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.itextpdf.text.DocumentException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import systems.rajshah.model.FdInfo;
 import systems.rajshah.model.FullInvestorInfo;
 import systems.rajshah.model.InvestorInfo;
@@ -39,15 +43,20 @@ public class FdprojectRestController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FdprojectRestController.class);
 
-
+    @Operation(summary = " Greet Message Entry Point")
+    @ApiResponses(value = {@ApiResponse(description = " UNAUTHORIZED Request Authenticate",responseCode = "401"),
+    		@ApiResponse(description = " Authenticated Welcome Message",responseCode = "200")})
 	@GetMapping("/")
 	public ResponseEntity<String> greetMessage() {
 		return new ResponseEntity<String>("***** Welcome To Data CRM System .Please Authenticate *****",
 				HttpStatus.UNAUTHORIZED);
 	}
 
+    @Operation(summary = "Get UserInfo From User ID - 48 Code")
+    @ApiResponses(value = {@ApiResponse(description = " Invalid Customer UID  ",responseCode = "401"),
+    		@ApiResponse(description = " Found User ",responseCode = "200")})
 	@GetMapping(value = "/users/{currentUid}", produces = "application/json")
-	public UserInfo getUserInfoByemail(@PathVariable("currentUid") String currentUid)
+	public UserInfo getUserInfoByemail(@Parameter(description = " Customer Unique ID ",example = "12GFuyeyycg")@PathVariable("currentUid") String currentUid)
 			throws FirebaseAuthException, InterruptedException, ExecutionException {
 		return ifirebaseuser.getCurrentUserDetails(currentUid);
 	}

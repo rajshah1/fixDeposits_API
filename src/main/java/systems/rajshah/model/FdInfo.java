@@ -2,6 +2,8 @@ package systems.rajshah.model;
 
 import java.util.Date;
 
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -10,10 +12,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Component
 public class FdInfo {
+	@NotBlank
 	private String id;
 	private String comapnyName;
 	@JsonFormat(shape = Shape.STRING, pattern = "EEE MMM dd HH:mm:ss Z yyyy")
 	private Date startDate;
+	
 	private int period;
 	@JsonFormat(shape = Shape.STRING, pattern = "EEE MMM dd HH:mm:ss Z yyyy")
 	private Date maturityDate;

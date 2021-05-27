@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -28,6 +29,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 
 import HeaderFooterPageEvent.HeaderFooterUtils;
+import systems.rajshah.model.InvestorInfo;
 import systems.rajshah.model.QueryObjectDetails;
 import systems.rajshah.model.ReportGenObject;
 import systems.rajshah.model.UserInfo;
@@ -146,6 +148,12 @@ public class FirebaseUserOperation implements IFirebaseUserOperartions {
 				currentUid);
 
 		return fullInfoResp;
+	}
+
+	@Override
+	public List<InvestorInfo> getUserInfoFromFamilyCode(String currentUid, String id) throws InterruptedException, ExecutionException {
+		// TODO Auto-generated method stub
+		return firestore.collection(currentUid).whereEqualTo("familyCode", id).get().get().toObjects(InvestorInfo.class);
 	}
 
 }
