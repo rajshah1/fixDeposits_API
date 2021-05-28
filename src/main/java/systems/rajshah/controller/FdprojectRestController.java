@@ -48,7 +48,7 @@ public class FdprojectRestController {
     		@ApiResponse(description = " Authenticated Welcome Message",responseCode = "200")})
 	@GetMapping("/")
 	public ResponseEntity<String> greetMessage() {
-		return new ResponseEntity<String>("***** Welcome To Data CRM System .Please Authenticate *****",
+		return new ResponseEntity<String>("***** Welcome To the Data CRM System .Please Authenticate *****",
 				HttpStatus.UNAUTHORIZED);
 	}
 
