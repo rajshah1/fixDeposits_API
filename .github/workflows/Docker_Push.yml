@@ -35,7 +35,7 @@ jobs:
         architecturewith: x64
     - name: Build  Maven
       run: |
-        echo $GOOGLE_APP_CREDENTIALS > ./google/google-credentials.json
+        echo $GOOGLE_APP_CREDENTIALS > ./google-credentials.json
         #mvn -B package --file pom.xml
       env:
         GOOGLE_APP_CREDENTIALS: ${{ secrets.GOOGLE_APP_CREDENTIALS }}
