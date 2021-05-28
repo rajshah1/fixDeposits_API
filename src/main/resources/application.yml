@@ -21,7 +21,7 @@ server:
 
 google:
     credentials: 
-      location: ./google/google-credentials.json
+      location: ./google-credentials.json
     
 spring:
   cloud:    gcp:
