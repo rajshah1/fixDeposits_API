@@ -1,4 +1,4 @@
-FROM openjdk:11.0.8-jre-slim-buster as builder
+FROM openjdk:11.0.8-jdk-slim-buster as builder
 MAINTAINER Raj Shah
 RUN mkdir -p /app/source
 COPY . /app/source
