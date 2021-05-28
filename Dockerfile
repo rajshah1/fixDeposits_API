@@ -3,7 +3,7 @@ MAINTAINER Raj Shah
 RUN mkdir -p /app/source
 COPY . /app/source
 WORKDIR /app/source
-RUN mvn clean install 
+RUN ./mvnw clean install 
 
 FROM openjdk:11.0.8-jre-slim-buster as final_build
 COPY --from=builder /app/source/target/*.jar app.jar
