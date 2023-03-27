@@ -21,7 +21,7 @@
 		<sonar.organization>rajshah1</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
-		<itext.version>5.5.13.1</itext.version>
+		<itext.version>5.5.13.3</itext.version>
 		<fireadmin.version>7.0.0</fireadmin.version>
 	</properties>
 
